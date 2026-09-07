@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function role() {
+      return userDoc().role;
+    }
+
+    function companyId() {
+      return userDoc().companyId;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && role() == 'superAdmin';
+    }
+
+    function isAdminOfCompany(targetCompanyId) {
+      return isSignedIn() && role() == 'admin' && companyId() == targetCompanyId;
+    }
+
+    // --- users ---
+    match /users/{uid} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == uid ||
+        isSuperAdmin() ||
+        isAdminOfCompany(resource.data.companyId)
+      );
+      // Танҳо суперадмин/админ ҳисоби нав месозад (аз тарафи клиент бо
+      // Firebase Auth Admin SDK ё аз тариқи createUserWithEmailAndPassword
+      // дар сессияи админ — дар production беҳтар аст ин корро Cloud
+      // Function иҷро кунад, на клиент).
+      allow create: if isSuperAdmin() || isAdminOfCompany(request.resource.data.companyId);
+      allow update, delete: if isSuperAdmin() || isAdminOfCompany(resource.data.companyId);
+    }
+
+    // --- properties (қисми ОММАВӢ) ---
+    match /properties/{propertyId} {
+      // Ҳама корбарони воридшуда (менеҷерони ҳама ширкатҳо) метавонанд
+      // майдонҳои оммавиро бихонанд — барои "Ҳамаи хонаҳо".
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn() && request.resource.data.addedByUid == request.auth.uid
+                    && request.resource.data.companyId == companyId();
+
+      allow update, delete: if isSignedIn() && (
+        resource.data.addedByUid == request.auth.uid ||
+        isSuperAdmin() ||
+        isAdminOfCompany(resource.data.companyId)
+      );
+
+      // --- private/contact (рақами соҳибхона, нархи аслӣ, комиссия) ---
+      // ФАҚАТ менеҷери иловакунанда ё админ/суперадмини ҳамон ширкат
+      // метавонад инро бихонад.
+      match /private/{docId} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/properties/$(propertyId)).data.addedByUid == request.auth.uid ||
+          isSuperAdmin() ||
+          isAdminOfCompany(get(/databases/$(database)/documents/properties/$(propertyId)).data.companyId)
+        );
+        allow write: if isSignedIn() &&
+          get(/databases/$(database)/documents/properties/$(propertyId)).data.addedByUid == request.auth.uid;
+      }
+    }
+
+    // --- clients ---
+    match /clients/{clientId} {
+      allow read: if isSignedIn() && (
+        resource.data.companyId == companyId() ||
+        isSuperAdmin()
+      );
+      allow create: if isSignedIn() && request.resource.data.companyId == companyId();
+      allow update, delete: if isSignedIn() && (
+        resource.data.addedByUid == request.auth.uid ||
+        isSuperAdmin() ||
+        isAdminOfCompany(resource.data.companyId)
+      );
+    }
+  }
+}
