@@ -100067,9 +100067,9 @@ var $async$q6=A.t(function(c,d){if(c===1)return A.x(d,r)
 for(;;)switch(s){case 0:s=3
 return A.w(b.xt(),$async$q6)
 case 3:m=d
-l=A.b_r("POST",A.hM("https://api.cloudinary.com/v1_1/\u0413\u0423\u0417\u041e\u0420\u0415\u0414_CLOUD_NAME/image/upload",0,null))
+l=A.b_r("POST",A.hM("https://api.cloudinary.com/v1_1/dstcdluhm/image/upload",0,null))
 k=l.x
-k.m(0,"upload_preset","\u0413\u0423\u0417\u041e\u0420\u0415\u0414_UPLOAD_PRESET")
+k.m(0,"upload_preset","imkon_upload")
 k.m(0,"folder","realestate/"+a)
 k=A.aP6(m,t.Cm)
 p=m.length
