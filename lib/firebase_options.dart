@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC07OP0AJrpoa2lkX_Zyi1ERt7pwzLfFp0',
-    appId: '1:310015569980:android:40fa601f31d546f7999339',
+    appId: '1:310015569980:android:8a035f0befb0bfa8999339',
     messagingSenderId: '310015569980',
     projectId: 'realestate-app-1dbbb',
     storageBucket: 'realestate-app-1dbbb.firebasestorage.app',

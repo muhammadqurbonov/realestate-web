@@ -1,6 +1,6 @@
 {
-    "name": "realestate_app",
-    "short_name": "realestate_app",
+    "name": "Green Home",
+    "short_name": "Green Home",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

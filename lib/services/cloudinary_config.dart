@@ -9,6 +9,6 @@
 /// upload preset-и unsigned бояд танҳо барои иҷозати боркунии акс
 /// танзим шуда бошад (на дигар амалиёт), то сӯиистифода нашавад.
 class CloudinaryConfig {
-  static const String cloudName = 'ГУЗОРЕД_CLOUD_NAME';
-  static const String uploadPreset = 'ГУЗОРЕД_UPLOAD_PRESET';
+  static const String cloudName = 'dstcdluhm';
+  static const String uploadPreset = 'imkon_upload';
 }
