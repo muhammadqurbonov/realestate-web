@@ -24,6 +24,29 @@ class AppStrings {
     'phone': {AppLocale.tj: 'Рақами телефон', AppLocale.ru: 'Номер телефона'},
     'password': {AppLocale.tj: 'Рамз', AppLocale.ru: 'Пароль'},
     'login_button': {AppLocale.tj: 'Ворид шудан', AppLocale.ru: 'Войти'},
+    'email': {AppLocale.tj: 'Email (Gmail)', AppLocale.ru: 'Email (Gmail)'},
+    'forgot_password': {AppLocale.tj: 'Парол фаромӯш шуд?', AppLocale.ru: 'Забыли пароль?'},
+    'reset_password_title': {AppLocale.tj: 'Барқарорсозии рамз', AppLocale.ru: 'Восстановление пароля'},
+    'reset_password_desc': {
+      AppLocale.tj: 'Email-и худро нависед — линки барқарорсозӣ фиристода мешавад',
+      AppLocale.ru: 'Введите email — ссылка для восстановления будет отправлена',
+    },
+    'reset_password_sent': {
+      AppLocale.tj: 'Паём фиристода шуд — почтаи худро санҷед',
+      AppLocale.ru: 'Письмо отправлено — проверьте почту',
+    },
+    'send': {AppLocale.tj: 'Фиристодан', AppLocale.ru: 'Отправить'},
+    'no_account_register': {AppLocale.tj: 'Ҳисоб надоред? Сабти ном', AppLocale.ru: 'Нет аккаунта? Регистрация'},
+    'have_account_login': {AppLocale.tj: 'Ҳисоб доред? Воридшавӣ', AppLocale.ru: 'Есть аккаунт? Войти'},
+    'register_title': {AppLocale.tj: 'Сабти номи менеҷер', AppLocale.ru: 'Регистрация менеджера'},
+    'full_name': {AppLocale.tj: 'Номи пурра', AppLocale.ru: 'Полное имя'},
+    'company_code': {AppLocale.tj: 'Рамзи ширкат', AppLocale.ru: 'Код компании'},
+    'company_code_hint': {
+      AppLocale.tj: 'Аз суперадмини ширкати худ гиред',
+      AppLocale.ru: 'Получите у суперадмина вашей компании',
+    },
+    'register_button': {AppLocale.tj: 'Сабти ном', AppLocale.ru: 'Зарегистрироваться'},
+    'promote_to_admin': {AppLocale.tj: 'Кардан ба админ', AppLocale.ru: 'Сделать админом'},
 
     // Қадами 0 — категория
     'step_category_title': {

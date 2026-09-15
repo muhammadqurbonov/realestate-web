@@ -34,11 +34,18 @@ service cloud.firestore {
         isSuperAdmin() ||
         isAdminOfCompany(resource.data.companyId)
       );
-      // Танҳо суперадмин/админ ҳисоби нав месозад (аз тарафи клиент бо
-      // Firebase Auth Admin SDK ё аз тариқи createUserWithEmailAndPassword
-      // дар сессияи админ — дар production беҳтар аст ин корро Cloud
-      // Function иҷро кунад, на клиент).
-      allow create: if isSuperAdmin() || isAdminOfCompany(request.resource.data.companyId);
+      // Ду роҳи сохтани ҳуҷҷат:
+      // 1) Суперадмин/админ аз "Танзимот" ҳисоби нав месозад (ҳар нақш)
+      // 2) Худи корбар худсабтномкунӣ мекунад — танҳо барои UID-и
+      //    ХУДАШ, ва танҳо бо нақши "manager" (наметавонад худаш
+      //    админ/суперадмин интихоб кунад).
+      allow create: if isSuperAdmin() || isAdminOfCompany(request.resource.data.companyId) || (
+        isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.role == 'manager' &&
+        request.resource.data.companyId is string &&
+        request.resource.data.companyId.size() > 0
+      );
       allow update, delete: if isSuperAdmin() || isAdminOfCompany(resource.data.companyId);
     }
 
@@ -59,15 +66,13 @@ service cloud.firestore {
 
       // --- private/contact (рақами соҳибхона, нархи аслӣ, комиссия) ---
       // ФАҚАТ менеҷери иловакунанда ё админ/суперадмини ҳамон ширкат
-      // метавонад инро бихонад.
+      // метавонад инро бихонад Ё таҳрир кунад.
       match /private/{docId} {
-        allow read: if isSignedIn() && (
+        allow read, write: if isSignedIn() && (
           get(/databases/$(database)/documents/properties/$(propertyId)).data.addedByUid == request.auth.uid ||
           isSuperAdmin() ||
           isAdminOfCompany(get(/databases/$(database)/documents/properties/$(propertyId)).data.companyId)
         );
-        allow write: if isSignedIn() &&
-          get(/databases/$(database)/documents/properties/$(propertyId)).data.addedByUid == request.auth.uid;
       }
     }
 

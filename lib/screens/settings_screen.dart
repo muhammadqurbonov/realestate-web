@@ -79,6 +79,7 @@ class _AddManagerDialog extends StatefulWidget {
 class _AddManagerDialogState extends State<_AddManagerDialog> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   UserRole _role = UserRole.manager;
   bool _saving = false;
@@ -93,6 +94,7 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
     final result = await auth.createManagerAccount(
       fullName: _nameController.text.trim(),
       phone: _phoneController.text.trim(),
+      email: _emailController.text.trim(),
       tempPassword: _passwordController.text,
       companyId: widget.companyId,
       role: _role,
@@ -110,40 +112,48 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
     final t = context.watch<LocaleService>().strings;
     return AlertDialog(
       title: Text(t.t('add_manager')),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Ном'),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _phoneController,
-            keyboardType: TextInputType.phone,
-            decoration: InputDecoration(labelText: t.t('phone')),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _passwordController,
-            decoration: InputDecoration(labelText: t.t('password')),
-          ),
-          if (widget.allowAdminRole) ...[
-            const SizedBox(height: 8),
-            DropdownButtonFormField<UserRole>(
-              value: _role,
-              items: const [
-                DropdownMenuItem(value: UserRole.manager, child: Text('Менеҷер')),
-                DropdownMenuItem(value: UserRole.admin, child: Text('Админ')),
-              ],
-              onChanged: (v) => setState(() => _role = v!),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Ном'),
             ),
-          ],
-          if (_error != null) ...[
             const SizedBox(height: 8),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(labelText: t.t('phone')),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(labelText: t.t('email')),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: t.t('password')),
+            ),
+            if (widget.allowAdminRole) ...[
+              const SizedBox(height: 8),
+              DropdownButtonFormField<UserRole>(
+                value: _role,
+                items: const [
+                  DropdownMenuItem(value: UserRole.manager, child: Text('Менеҷер')),
+                  DropdownMenuItem(value: UserRole.admin, child: Text('Админ')),
+                ],
+                onChanged: (v) => setState(() => _role = v!),
+              ),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+            ],
           ],
-        ],
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Бекор')),

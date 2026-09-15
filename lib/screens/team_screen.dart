@@ -87,27 +87,45 @@ class TeamScreen extends StatelessWidget {
                             ],
                           ),
                           Text(user.phone, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                          if (user.email.isNotEmpty)
+                            Text(user.email, style: const TextStyle(fontSize: 11, color: Colors.grey)),
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _roleColor(user.role).withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        _roleLabel(user.role, t),
-                        style: TextStyle(color: _roleColor(user.role), fontSize: 11, fontWeight: FontWeight.w700),
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _roleColor(user.role).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _roleLabel(user.role, t),
+                            style: TextStyle(color: _roleColor(user.role), fontSize: 11, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (me.canManageAdmins && user.role == UserRole.manager && !isMe)
+                              IconButton(
+                                icon: const Icon(Icons.arrow_upward_rounded, color: Colors.orange, size: 20),
+                                tooltip: t.t('promote_to_admin'),
+                                onPressed: () => context
+                                    .read<AuthService>()
+                                    .updateUserRole(user.uid, UserRole.admin),
+                              ),
+                            if (canDelete)
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                onPressed: () => _confirmDelete(context, user, firestoreService, t),
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
-                    if (canDelete) ...[
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                        onPressed: () => _confirmDelete(context, user, firestoreService, t),
-                      ),
-                    ],
                   ],
                 ),
               );

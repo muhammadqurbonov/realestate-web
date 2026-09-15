@@ -28,6 +28,7 @@ class AppUser {
   final String uid;
   final String fullName;
   final String phone;
+  final String email;
   final UserRole role;
   final String companyId;
 
@@ -35,6 +36,7 @@ class AppUser {
     required this.uid,
     required this.fullName,
     required this.phone,
+    required this.email,
     required this.role,
     required this.companyId,
   });
@@ -44,6 +46,7 @@ class AppUser {
       uid: uid,
       fullName: map['fullName'] ?? '',
       phone: map['phone'] ?? '',
+      email: map['email'] ?? '',
       role: roleFromString(map['role'] ?? 'manager'),
       companyId: map['companyId'] ?? '',
     );
@@ -53,6 +56,7 @@ class AppUser {
     return {
       'fullName': fullName,
       'phone': phone,
+      'email': email,
       'role': roleToString(role),
       'companyId': companyId,
     };

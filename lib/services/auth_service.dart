@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/app_user.dart';
 
-/// Идоракунии воридшавӣ. Менеҷерон/админҳо ХУДАШОН сабти ном намекунанд —
-/// суперадмин/админ ҳисоби навро дар "Танзимот" месозад ва рамзи муваққатӣ
-/// медиҳад (нигаред ба AuthService.createManagerAccount поён).
+/// Идоракунии воридшавӣ. Акнун бо email-и ВОҚЕӢ (Gmail) кор мекунад —
+/// то Firebase тавонад дар ҳолати фаромӯшшавии рамз, паёми
+/// барқарорсозиро воқеан ба email-и корбар фиристад.
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -33,17 +33,22 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Воридшавӣ бо почтаи "виртуалӣ" сохташуда аз рақами телефон
-  /// (Firebase Auth ба таври стандартӣ бо email/password кор мекунад,
-  /// пас рақами телефонро ба формати email мубаддал мекунем:
-  /// +992xxxxxxxxx -> 992xxxxxxxxx@realestate-app.local).
-  Future<String?> login(String phone, String password) async {
+  Future<String?> login(String email, String password) async {
     try {
-      final email = _phoneToEmail(phone);
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(email: email.trim(), password: password);
       return null; // муваффақ
     } on FirebaseAuthException catch (e) {
       return e.message ?? 'Хатои воридшавӣ';
+    }
+  }
+
+  /// Паёми барқарорсозии рамзро ба email-и воқеии корбар мефиристад.
+  Future<String?> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message ?? 'Хатои фиристодани паём';
     }
   }
 
@@ -51,20 +56,51 @@ class AuthService extends ChangeNotifier {
     await _auth.signOut();
   }
 
-  /// Танҳо суперадмин/админ метавонад ин функсияро истифода барад
-  /// (санҷиш дар UI бо currentUser.canManageManagers ва боз ҳам
-  /// дар Firestore Security Rules такрор мешавад).
+  /// Худсабтномкунии менеҷер — ҳар кас метавонад бо рамзи ширкат
+  /// (companyId), ном, рақами телефон, email, ва рамз худаш сабти ном
+  /// кунад. Нақши ибтидоӣ ҳамеша "manager" аст — суперадмин баъдан
+  /// метавонад ба админ табдил диҳад.
+  Future<String?> registerManager({
+    required String fullName,
+    required String phone,
+    required String email,
+    required String password,
+    required String companyId,
+  }) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      final newUser = AppUser(
+        uid: credential.user!.uid,
+        fullName: fullName,
+        phone: phone,
+        email: email.trim(),
+        role: UserRole.manager,
+        companyId: companyId,
+      );
+      await _db.collection('users').doc(newUser.uid).set(newUser.toMap());
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message ?? 'Хатои сабти ном';
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  /// Танҳо суперадмин/админ метавонад ин функсияро истифода барад —
+  /// сохтани ҳисоби менеҷер/админ аз дохили "Танзимот".
   Future<String?> createManagerAccount({
     required String fullName,
     required String phone,
+    required String email,
     required String tempPassword,
     required String companyId,
     UserRole role = UserRole.manager,
   }) async {
     FirebaseApp? secondaryApp;
     try {
-      final email = _phoneToEmail(phone);
-
       // МУҲИМ: createUserWithEmailAndPassword ба таври худкор сессияи
       // ҷориро ба корбари НАВ иваз мекунад. Барои пешгирии ин (то
       // сессияи суперадмин/админи шумо халалдор нашавад), корбари
@@ -76,7 +112,7 @@ class AuthService extends ChangeNotifier {
       final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
 
       final credential = await secondaryAuth.createUserWithEmailAndPassword(
-        email: email,
+        email: email.trim(),
         password: tempPassword,
       );
 
@@ -84,6 +120,7 @@ class AuthService extends ChangeNotifier {
         uid: credential.user!.uid,
         fullName: fullName,
         phone: phone,
+        email: email.trim(),
         role: role,
         companyId: companyId,
       );
@@ -94,16 +131,13 @@ class AuthService extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       return e.message ?? 'Хатои сохтани ҳисоб';
     } catch (e) {
-      // Ҳама хатогиҳои дигар (масалан permission-denied аз Firestore)
-      // низ гирифта мешаванд, то интерфейс абадӣ нашавад.
       return e.toString();
     } finally {
       if (secondaryApp != null) await secondaryApp.delete();
     }
   }
 
-  String _phoneToEmail(String phone) {
-    final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    return '$digits@realestate-app.local';
-  }
+  /// Тағйири нақши корбар (масалан манеҷер → админ). Танҳо суперадмин.
+  Future<void> updateUserRole(String uid, UserRole role) =>
+      _db.collection('users').doc(uid).update({'role': roleToString(role)});
 }

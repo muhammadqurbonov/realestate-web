@@ -133,11 +133,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     try {
       final photoUrls = <String>[];
       var mediaUploadFailed = false;
+      String? uploadErrorDetail;
       for (final photo in _photos) {
         try {
           photoUrls.add(await _storageService.uploadPropertyPhoto(user.companyId, photo));
-        } catch (_) {
+        } catch (e) {
           mediaUploadFailed = true;
+          uploadErrorDetail = e.toString();
         }
       }
 
@@ -177,11 +179,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
       if (mounted) {
         if (mediaUploadFailed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Хона сабт шуд, вале баъзе аксҳо бор нашуданд.')),
+          await showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('Хона сабт шуд, вале аксҳо бор нашуданд'),
+              content: SingleChildScrollView(child: Text(uploadErrorDetail ?? 'Хатои номаълум')),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+              ],
+            ),
           );
         }
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       }
     } catch (e) {
       setState(() => _error = e.toString());
