@@ -1,7 +1,5 @@
 /// Оддитарин системаи забон (localization) — на ба intl/arb вобаста аст.
 /// Ду забон дастгирӣ мешавад: тоҷикӣ (tj) ва русӣ (ru).
-/// Корбар худаш забонро аз "Танзимот" интихоб мекунад ва интихобаш
-/// дар SharedPreferences нигоҳ дошта мешавад (бинед: locale_service.dart).
 library;
 
 enum AppLocale { tj, ru }
@@ -19,7 +17,7 @@ class AppStrings {
     'clients': {AppLocale.tj: 'Муштариён', AppLocale.ru: 'Клиенты'},
     'settings': {AppLocale.tj: 'Танзимот', AppLocale.ru: 'Настройки'},
 
-    // Воридшавӣ
+    // Воридшавӣ / сабти ном
     'login': {AppLocale.tj: 'Воридшавӣ', AppLocale.ru: 'Вход'},
     'phone': {AppLocale.tj: 'Рақами телефон', AppLocale.ru: 'Номер телефона'},
     'password': {AppLocale.tj: 'Рамз', AppLocale.ru: 'Пароль'},
@@ -56,12 +54,10 @@ class AppStrings {
     'category_apartment': {AppLocale.tj: 'Фуруши хонаҳо', AppLocale.ru: 'Продажа квартир'},
     'category_house_land': {AppLocale.tj: 'Фуруши ҳавлӣ ва дача', AppLocale.ru: 'Продажа дома и дачи'},
 
-    // Ҳавлӣ/дача
     'step_houseland_type_title': {AppLocale.tj: 'Ин чист?', AppLocale.ru: 'Что это?'},
     'houseland_havli': {AppLocale.tj: 'Ҳавлӣ', AppLocale.ru: 'Дом с участком'},
     'houseland_dacha': {AppLocale.tj: 'Дача', AppLocale.ru: 'Дача'},
 
-    // Рақамӣ/матнӣ қадамҳо
     'step_rooms_title': {AppLocale.tj: 'Чанд хонагӣ аст?', AppLocale.ru: 'Сколько комнат?'},
     'step_price_title': {AppLocale.tj: 'Нархи хона чанд аст?', AppLocale.ru: 'Какая цена объекта?'},
     'step_description_title': {AppLocale.tj: 'Тавсифи хона', AppLocale.ru: 'Описание объекта'},
@@ -83,7 +79,6 @@ class AppStrings {
       AppLocale.ru: 'Сколько соток земли?',
     },
 
-    // Интихобҳо
     'step_building_form_title': {AppLocale.tj: 'Шакли бино', AppLocale.ru: 'Тип здания'},
     'building_old': {AppLocale.tj: 'Пешина', AppLocale.ru: 'Старый фонд'},
     'building_new': {AppLocale.tj: 'Навсохт', AppLocale.ru: 'Новостройка'},
@@ -133,7 +128,6 @@ class AppStrings {
     'save': {AppLocale.tj: 'Нигоҳ доштан', AppLocale.ru: 'Сохранить'},
     'added_by': {AppLocale.tj: 'Менеҷери иловакарда', AppLocale.ru: 'Добавил менеджер'},
 
-    // Умумӣ
     'somoni': {AppLocale.tj: 'сомонӣ', AppLocale.ru: 'сомони'},
     'required_field': {AppLocale.tj: 'Ин майдон ҳатмист', AppLocale.ru: 'Обязательное поле'},
     'add_manager': {AppLocale.tj: 'Иловаи менеҷер', AppLocale.ru: 'Добавить менеджера'},

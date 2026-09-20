@@ -3,8 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_strings.dart';
 
 /// Идоракунии забони интихобкардаи корбар.
-/// Ҳар корбар (менеҷер/админ) метавонад забони худро мустақилона
-/// интихоб кунад — интихоб дар дастгоҳ (SharedPreferences) нигоҳ дошта мешавад.
 class LocaleService extends ChangeNotifier {
   static const _prefsKey = 'app_locale';
 

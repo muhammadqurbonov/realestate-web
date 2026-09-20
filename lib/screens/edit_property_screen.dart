@@ -10,8 +10,6 @@ import '../models/property.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
-/// Таҳрири хонаи мавҷуда — ҳама майдонҳо дар як саҳифа (на wizard),
-/// то тағйир додани як-ду чиз зуд бошад. Инчунин тугмаи ҳазф дорад.
 class EditPropertyScreen extends StatefulWidget {
   final Property property;
   final PropertyPrivateInfo privateInfo;
@@ -95,9 +93,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
       for (final photo in _newPhotos) {
         try {
           photoUrls.add(await _storageService.uploadPropertyPhoto(widget.property.companyId, photo));
-        } catch (_) {
-          // Агар Storage дастрас набошад, акси нав гузашта мешавад, аксҳои кӯҳна мемонанд.
-        }
+        } catch (_) {}
       }
 
       final updated = Property(
@@ -143,20 +139,14 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   }
 
   Future<void> _confirmDelete() async {
-    final t = context.read<LocaleService>().strings;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(t.locale == AppLocale.ru ? 'Удалить объект?' : 'Хонаро ҳазф кунем?'),
-        content: Text(t.locale == AppLocale.ru
-            ? 'Это действие нельзя отменить.'
-            : 'Ин амалро баргардонидан мумкин нест.'),
+        title: const Text('Хонаро ҳазф кунем?'),
+        content: const Text('Ин амалро баргардонидан мумкин нест.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Бекор')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Ҳазф', style: TextStyle(color: Colors.red)),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Ҳазф', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -166,8 +156,8 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     try {
       await _firestoreService.deleteProperty(widget.property.id);
       if (mounted) {
-        Navigator.pop(context); // EditPropertyScreen
-        Navigator.pop(context); // PropertyDetailScreen
+        Navigator.pop(context);
+        Navigator.pop(context);
       }
     } catch (e) {
       setState(() {
@@ -198,13 +188,9 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Категория (танҳо намоиш — тағйир додани категория пас аз сохтан мураккаб аст)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: _kPrimary.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: _kPrimary.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
               child: Text(
                 _category == ListingCategory.apartment
                     ? t.t('category_apartment')
@@ -213,70 +199,29 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
             if (_category == ListingCategory.apartment) ...[
-              TextField(
-                controller: _roomsController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: t.t('step_rooms_title')),
-              ),
+              TextField(controller: _roomsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_rooms_title'))),
               const SizedBox(height: 12),
             ] else ...[
-              TextField(
-                controller: _houseFloorsController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: t.t('step_house_floors_title')),
-              ),
+              TextField(controller: _houseFloorsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_house_floors_title'))),
               const SizedBox(height: 12),
-              TextField(
-                controller: _landSotkaController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: t.t('step_land_sotka_title')),
-              ),
+              TextField(controller: _landSotkaController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_land_sotka_title'))),
               const SizedBox(height: 12),
             ],
-
-            TextField(
-              controller: _priceController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: t.t('step_price_title'), suffixText: t.t('somoni')),
-            ),
+            TextField(controller: _priceController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_price_title'), suffixText: t.t('somoni'))),
             const SizedBox(height: 12),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 4,
-              decoration: InputDecoration(labelText: t.t('step_description_title')),
-            ),
+            TextField(controller: _descriptionController, maxLines: 4, decoration: InputDecoration(labelText: t.t('step_description_title'))),
             const SizedBox(height: 12),
-            TextField(
-              controller: _addressController,
-              decoration: InputDecoration(labelText: t.t('step_address_title')),
-            ),
+            TextField(controller: _addressController, decoration: InputDecoration(labelText: t.t('step_address_title'))),
             const SizedBox(height: 12),
-            TextField(
-              controller: _areaController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: t.t('step_area_title'), suffixText: 'м²'),
-            ),
+            TextField(controller: _areaController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_area_title'), suffixText: 'м²')),
             if (_category == ListingCategory.apartment) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _floorController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(labelText: t.t('floor_label')),
-                    ),
-                  ),
+                  Expanded(child: TextField(controller: _floorController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('floor_label')))),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _totalFloorsController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(labelText: t.t('total_floors_label')),
-                    ),
-                  ),
+                  Expanded(child: TextField(controller: _totalFloorsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('total_floors_label')))),
                 ],
               ),
             ],
@@ -307,8 +252,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               decoration: InputDecoration(labelText: t.t('step_construction_status_title')),
               items: [
                 DropdownMenuItem(value: ConstructionStatus.built, child: Text(t.t('construction_built'))),
-                DropdownMenuItem(
-                    value: ConstructionStatus.underConstruction, child: Text(t.t('construction_in_progress'))),
+                DropdownMenuItem(value: ConstructionStatus.underConstruction, child: Text(t.t('construction_in_progress'))),
               ],
               onChanged: (v) => setState(() => _constructionStatus = v!),
             ),
@@ -332,7 +276,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               ],
               onChanged: (v) => setState(() => _hasTechPassport = v!),
             ),
-
             const SizedBox(height: 16),
             Text(t.t('step_photos_title'), style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
@@ -342,28 +285,18 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               children: [
                 ..._existingPhotoUrls.map((url) => Stack(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(url, width: 84, height: 84, fit: BoxFit.cover),
-                        ),
+                        ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(url, width: 84, height: 84, fit: BoxFit.cover)),
                         Positioned(
                           top: 2,
                           right: 2,
                           child: InkWell(
                             onTap: () => setState(() => _existingPhotoUrls.remove(url)),
-                            child: const CircleAvatar(
-                              radius: 11,
-                              backgroundColor: Colors.black54,
-                              child: Icon(Icons.close, size: 14, color: Colors.white),
-                            ),
+                            child: const CircleAvatar(radius: 11, backgroundColor: Colors.black54, child: Icon(Icons.close, size: 14, color: Colors.white)),
                           ),
                         ),
                       ],
                     )),
-                ..._newPhotos.map((f) => ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: _XFileThumb(file: f, size: 84),
-                    )),
+                ..._newPhotos.map((f) => ClipRRect(borderRadius: BorderRadius.circular(10), child: _XFileThumb(file: f, size: 84))),
                 InkWell(
                   onTap: _pickPhotos,
                   borderRadius: BorderRadius.circular(10),
@@ -371,40 +304,26 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                     width: 84,
                     height: 84,
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(10)),
                     child: Icon(Icons.add_a_photo_outlined, color: Colors.grey[600]),
                   ),
                 ),
               ],
             ),
-
             const Divider(height: 32),
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.withOpacity(0.4)),
-              ),
+              decoration: BoxDecoration(color: Colors.amber.withOpacity(0.08), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.amber.withOpacity(0.4))),
               child: Row(
                 children: [
                   const Icon(Icons.lock_outline, size: 18, color: Colors.orange),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(t.t('private_note'), style: const TextStyle(fontSize: 12, color: Colors.orange)),
-                  ),
+                  Expanded(child: Text(t.t('private_note'), style: const TextStyle(fontSize: 12, color: Colors.orange))),
                 ],
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _ownerPhoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: t.t('owner_phone')),
-            ),
+            TextField(controller: _ownerPhoneController, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: t.t('owner_phone'))),
             const SizedBox(height: 12),
             DropdownButtonFormField<CommissionType>(
               value: _commissionType,
@@ -419,23 +338,13 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
             TextField(
               controller: _commissionValueController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: t.t('commission_value'),
-                suffixText: _commissionType == CommissionType.percent ? '%' : t.t('somoni'),
-              ),
+              decoration: InputDecoration(labelText: t.t('commission_value'), suffixText: _commissionType == CommissionType.percent ? '%' : t.t('somoni')),
             ),
-
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            ],
-
+            if (_error != null) ...[const SizedBox(height: 12), Text(_error!, style: const TextStyle(color: Colors.red))],
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saving ? null : _save,
-              child: _saving
-                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(t.t('save')),
+              child: _saving ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)) : Text(t.t('save')),
             ),
             const SizedBox(height: 24),
           ],
@@ -445,8 +354,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   }
 }
 
-/// Пешнамоиши расм аз XFile — дар ҳама платформаҳо (Android, iOS, Web)
-/// кор мекунад.
 class _XFileThumb extends StatelessWidget {
   final XFile file;
   final double size;

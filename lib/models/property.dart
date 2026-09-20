@@ -68,9 +68,7 @@ BathroomType bathroomTypeFromString(String value) =>
 String bathroomTypeToString(BathroomType value) =>
     value == BathroomType.combined ? 'combined' : 'separate';
 
-/// Навъи маслиҳат бо соҳибхона (комиссия):
-/// - percent: соҳибхона фоизе аз маблағи фурӯш мегирад
-/// - margin: соҳибхона маблағи собит мехоҳад, фарқият фоидаи менеҷер аст
+/// Навъи маслиҳат бо соҳибхона (комиссия).
 enum CommissionType { percent, margin }
 
 CommissionType commissionTypeFromString(String value) =>
@@ -79,9 +77,7 @@ CommissionType commissionTypeFromString(String value) =>
 String commissionTypeToString(CommissionType type) =>
     type == CommissionType.margin ? 'margin' : 'percent';
 
-/// Қисми ОММАВӢ — ҳама менеҷерони ҳамаи ширкатҳо инро мебинанд.
-/// Ҳама маълумот ба ҷуз "маслиҳат бо соҳибхона" (рақами соҳибхона +
-/// навъи комиссия) дар ин ҷо аст.
+/// Қисми ОММАВӢ.
 class Property {
   final String id;
   final String companyId;
@@ -92,18 +88,18 @@ class Property {
   final bool isSold;
 
   final ListingCategory category;
-  final HouseLandType? houseLandType; // танҳо агар category == houseLand
+  final HouseLandType? houseLandType;
 
-  final int rooms; // танҳо барои apartment
-  final int houseFloorsCount; // "миқдори ошёнаҳо" — танҳо барои houseLand
-  final double landSotka; // "сотиқи замин" — танҳо барои houseLand
+  final int rooms;
+  final int houseFloorsCount;
+  final double landSotka;
 
   final double price;
   final String description;
   final String address;
   final double area;
-  final int floor; // ошёна — танҳо барои apartment
-  final int totalFloors; // шумораи ошёнаҳои бино — танҳо барои apartment
+  final int floor;
+  final int totalFloors;
 
   final BuildingForm buildingForm;
   final RenovationLevel renovationLevel;
@@ -202,13 +198,11 @@ class Property {
   }
 }
 
-/// Қисми ХУСУСӢ (private subcollection: properties/{id}/private/contact).
-/// "Маслиҳат бо соҳибхона" — танҳо менеҷери иловакунанда ё
-/// админ/суперадмини ҳамон ширкат мебинад.
+/// Қисми ХУСУСӢ.
 class PropertyPrivateInfo {
   final String ownerPhone;
   final CommissionType commissionType;
-  final double commissionValue; // фоиз агар percent, маблағи собит агар margin
+  final double commissionValue;
 
   PropertyPrivateInfo({
     required this.ownerPhone,

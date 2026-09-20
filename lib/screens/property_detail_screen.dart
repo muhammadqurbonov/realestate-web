@@ -6,13 +6,11 @@ import '../services/firestore_service.dart';
 import '../l10n/app_strings.dart';
 import '../services/whatsapp_share.dart';
 import 'edit_property_screen.dart';
+import 'photo_gallery_screen.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
-/// Саҳифаи пурраи деталии хона. Агар [canSeePrivate] дуруст бошад
-/// (менеҷери иловакунанда ё админ/суперадмини ҳамон ширкат), маълумоти
-/// хусусӣ (рақами соҳибхона + шарти комиссия) низ нишон дода мешавад,
-/// ва тугмаи "Фурӯхта шуд"/"Бозгардонидан ба фурӯш" намоён мешавад.
+/// Саҳифаи пурраи деталии хона.
 class PropertyDetailScreen extends StatefulWidget {
   final Property property;
   final bool canSeePrivate;
@@ -46,6 +44,12 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           : t.t('houseland_havli');
     }
     return t.t('category_apartment');
+  }
+
+  String _formatDate(DateTime dt) {
+    final d = dt.day.toString().padLeft(2, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    return '$d.$m.${dt.year}';
   }
 
   Future<void> _toggleSold() async {
@@ -99,10 +103,18 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: property.photoUrls.isNotEmpty
-                  ? PageView(
-                      children: property.photoUrls
-                          .map((url) => Image.network(url, fit: BoxFit.cover))
-                          .toList(),
+                  ? PageView.builder(
+                      itemCount: property.photoUrls.length,
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                PhotoGalleryScreen(photoUrls: property.photoUrls, initialIndex: index),
+                          ),
+                        ),
+                        child: Image.network(property.photoUrls[index], fit: BoxFit.cover),
+                      ),
                     )
                   : Container(
                       color: _kPrimary.withOpacity(0.15),
@@ -158,14 +170,20 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       Expanded(child: Text(property.address, style: const TextStyle(color: Colors.grey))),
                     ],
                   ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(_formatDate(property.createdAt),
+                          style: const TextStyle(color: Colors.grey, fontSize: 12.5)),
+                    ],
+                  ),
                   const SizedBox(height: 20),
                   _DetailGrid(property: property, t: t),
                   if (property.description.isNotEmpty) ...[
                     const SizedBox(height: 20),
-                    Text(
-                      property.description,
-                      style: const TextStyle(fontSize: 14.5, height: 1.5),
-                    ),
+                    Text(property.description, style: const TextStyle(fontSize: 14.5, height: 1.5)),
                   ],
                   const SizedBox(height: 20),
                   SizedBox(
@@ -204,8 +222,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(t.t('added_by'), style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                            Text(property.addedByName,
-                                style: const TextStyle(fontWeight: FontWeight.w600)),
+                            Text(property.addedByName, style: const TextStyle(fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -303,10 +320,7 @@ class _DetailGrid extends StatelessWidget {
       children: items
           .map((item) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F8F7),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFF6F8F7), borderRadius: BorderRadius.circular(12)),
                 child: Row(
                   children: [
                     Icon(item.icon, size: 18, color: _kPrimary),
@@ -317,9 +331,10 @@ class _DetailGrid extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(item.label,
-                              style: const TextStyle(fontSize: 10, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          Text(item.value,
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                              style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
+                          Text(item.value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                         ],
                       ),
                     ),
@@ -349,10 +364,7 @@ class _PrivateSection extends StatelessWidget {
       future: FirestoreService().getPrivateInfo(propertyId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: CircularProgressIndicator(),
-          );
+          return const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: CircularProgressIndicator());
         }
         final info = snapshot.data;
         if (info == null) return const SizedBox();

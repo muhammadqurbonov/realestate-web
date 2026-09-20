@@ -9,7 +9,7 @@ class Client {
   final int maxRooms;
   final double minBudget;
   final double maxBudget;
-  final String preferredArea; // минтақа/маҳалла ба матни озод
+  final String preferredArea;
   final DateTime createdAt;
 
   Client({

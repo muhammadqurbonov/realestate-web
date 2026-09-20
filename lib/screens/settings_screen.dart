@@ -32,8 +32,6 @@ class SettingsScreen extends StatelessWidget {
             onSelectionChanged: (selection) => localeService.setLocale(selection.first),
           ),
           const Divider(height: 32),
-
-          // Танҳо суперадмин/админ ин қисмро мебинанд
           if (user != null && user.canManageManagers) ...[
             ListTile(
               leading: const Icon(Icons.person_add_alt_outlined),
@@ -42,7 +40,6 @@ class SettingsScreen extends StatelessWidget {
                 context: context,
                 builder: (_) => _AddManagerDialog(
                   companyId: user.companyId,
-                  // Танҳо суперадмин метавонад нақши "admin" таъин кунад
                   allowAdminRole: user.canManageAdmins,
                 ),
               ),
@@ -55,7 +52,6 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(height: 32),
           ],
-
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: Text(t.t('logout'), style: const TextStyle(color: Colors.red)),
@@ -116,27 +112,13 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Ном'),
-            ),
+            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Ном')),
             const SizedBox(height: 8),
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: t.t('phone')),
-            ),
+            TextField(controller: _phoneController, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: t.t('phone'))),
             const SizedBox(height: 8),
-            TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(labelText: t.t('email')),
-            ),
+            TextField(controller: _emailController, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: t.t('email'))),
             const SizedBox(height: 8),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: t.t('password')),
-            ),
+            TextField(controller: _passwordController, decoration: InputDecoration(labelText: t.t('password'))),
             if (widget.allowAdminRole) ...[
               const SizedBox(height: 8),
               DropdownButtonFormField<UserRole>(
@@ -148,10 +130,7 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
                 onChanged: (v) => setState(() => _role = v!),
               ),
             ],
-            if (_error != null) ...[
-              const SizedBox(height: 8),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            ],
+            if (_error != null) ...[const SizedBox(height: 8), Text(_error!, style: const TextStyle(color: Colors.red))],
           ],
         ),
       ),
@@ -159,10 +138,7 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Бекор')),
         ElevatedButton(
           onPressed: _saving ? null : _submit,
-          child: _saving
-              ? const SizedBox(
-                  height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
-              : Text(t.t('save')),
+          child: _saving ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)) : Text(t.t('save')),
         ),
       ],
     );

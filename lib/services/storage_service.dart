@@ -3,9 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'cloudinary_config.dart';
 
-/// Боркунии акс тавассути Cloudinary (ройгон, бе ниёз ба Firebase Blaze).
-/// XFile (аз image_picker) дар ҲАМА платформаҳо (Android, iOS, Web) кор
-/// мекунад — бар хилофи dart:io File, ки дар Веб дастрас нест.
+/// Боркунии акс тавассути Cloudinary. XFile дар ҳама платформаҳо
+/// (Android, iOS, Web) кор мекунад.
 class StorageService {
   Uri get _uploadUrl =>
       Uri.parse('https://api.cloudinary.com/v1_1/${CloudinaryConfig.cloudName}/image/upload');

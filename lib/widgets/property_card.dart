@@ -10,13 +10,9 @@ const _kPrimary = Color(0xFF0F6B5C);
 const _kPrimaryDark = Color(0xFF0A4A40);
 
 /// Корти хулосавии хона — дар "Хонаҳои ман" ва "Ҳамаи хонаҳо" истифода
-/// мешавад. Зер кардан ба саҳифаи пурраи детали мебарад. Тугмаи сабзи
-/// WhatsApp тамоми маълумоти хонаро ба таври форматшуда мефиристад.
+/// мешавад. Зер кардан ба саҳифаи пурраи детали мебарад.
 class PropertyCard extends StatelessWidget {
   final Property property;
-
-  /// Агар true бошад, дар саҳифаи детал маълумоти хусусӣ
-  /// (рақами соҳибхона + шарти комиссия) низ нишон дода мешавад.
   final bool canSeePrivate;
 
   const PropertyCard({super.key, required this.property, this.canSeePrivate = false});
@@ -37,12 +33,16 @@ class PropertyCard extends StatelessWidget {
     return '${property.houseFloorsCount}-ошёна · ${property.landSotka} сотих';
   }
 
+  String _formatDate(DateTime dt) {
+    final d = dt.day.toString().padLeft(2, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    return '$d.$m.${dt.year}';
+  }
+
   Future<void> _share(BuildContext context, AppStrings t) async {
     final ok = await shareToWhatsApp(property, t);
     if (!ok && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('WhatsApp кушода нашуд.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp кушода нашуд.')));
     }
   }
 
@@ -94,7 +94,6 @@ class PropertyCard extends StatelessWidget {
                           ),
                   ),
                 ),
-                // Соя барои хониши беҳтари теги боло
                 Positioned(
                   left: 0,
                   right: 0,
@@ -116,10 +115,7 @@ class PropertyCard extends StatelessWidget {
                   left: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.55),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    decoration: BoxDecoration(color: Colors.black.withOpacity(0.55), borderRadius: BorderRadius.circular(20)),
                     child: Text(_typeLabel(t),
                         style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
                   ),
@@ -130,10 +126,7 @@ class PropertyCard extends StatelessWidget {
                     right: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade600,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      decoration: BoxDecoration(color: Colors.red.shade600, borderRadius: BorderRadius.circular(20)),
                       child: Text(t.t('sold_badge'),
                           style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
                     ),
@@ -149,6 +142,8 @@ class PropertyCard extends StatelessWidget {
                       maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                   const SizedBox(height: 4),
                   Text(_subtitle(t), style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                  const SizedBox(height: 2),
+                  Text(_formatDate(property.createdAt), style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                   const SizedBox(height: 10),
                   Row(
                     children: [

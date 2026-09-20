@@ -9,14 +9,6 @@ import '../l10n/app_strings.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
-/// Ин саҳифаро ҲАМА менеҷерони ҳамаи ширкатҳо мебинанд.
-/// "Маслиҳат бо соҳибхона" (рақами соҳибхона + шарти комиссия) танҳо
-/// ба менеҷери иловакунанда ё админ/суперадмини ҳамон ширкат намоён
-/// мешавад — ин дар PropertyCard/PropertyDetailScreen ҳисоб карда мешавад.
-///
-/// Ҷустуҷӯ (аз рӯи суроға) ва филтрҳо (категория, нарх, ҳуҷра) дар
-/// КЛИЕНТ иҷро мешаванд — рӯйхати пурра аз Firestore меояд, баъд дар
-/// ҳамин ҷо тоза карда мешавад.
 class AllPropertiesScreen extends StatefulWidget {
   const AllPropertiesScreen({super.key});
 
@@ -39,9 +31,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
 
   List<Property> _applyFilters(List<Property> all) {
     return all.where((p) {
-      if (_query.isNotEmpty && !p.address.toLowerCase().contains(_query.toLowerCase())) {
-        return false;
-      }
+      if (_query.isNotEmpty && !p.address.toLowerCase().contains(_query.toLowerCase())) return false;
       if (_filterCategory != null && p.category != _filterCategory) return false;
       if (_minPrice != null && p.price < _minPrice!) return false;
       if (_maxPrice != null && p.price > _maxPrice!) return false;
@@ -58,9 +48,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
     final result = await showModalBottomSheet<_FilterResult>(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _FilterSheet(
         t: t,
         initialCategory: _filterCategory,
@@ -99,31 +87,23 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _query = v),
-                    decoration: InputDecoration(
-                      hintText: t.t('search_hint'),
-                      prefixIcon: const Icon(Icons.search),
-                      isDense: true,
-                    ),
+                    decoration: InputDecoration(hintText: t.t('search_hint'), prefixIcon: const Icon(Icons.search), isDense: true),
                   ),
                 ),
                 const SizedBox(width: 10),
-                Stack(
-                  children: [
-                    InkWell(
-                      onTap: _openFilters,
+                InkWell(
+                  onTap: _openFilters,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: _hasActiveFilters ? _kPrimary : Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: _hasActiveFilters ? _kPrimary : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: _hasActiveFilters ? _kPrimary : Colors.grey.shade300),
-                        ),
-                        child: Icon(Icons.tune_rounded, color: _hasActiveFilters ? Colors.white : Colors.grey[700]),
-                      ),
+                      border: Border.all(color: _hasActiveFilters ? _kPrimary : Colors.grey.shade300),
                     ),
-                  ],
+                    child: Icon(Icons.tune_rounded, color: _hasActiveFilters ? Colors.white : Colors.grey[700]),
+                  ),
                 ),
               ],
             ),
@@ -145,9 +125,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                 }
                 final properties = _applyFilters(snapshot.data!);
                 if (properties.isEmpty) {
-                  return Center(
-                    child: Text(t.t('no_results'), style: const TextStyle(color: Colors.grey)),
-                  );
+                  return Center(child: Text(t.t('no_results'), style: const TextStyle(color: Colors.grey)));
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -155,8 +133,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                   itemBuilder: (context, index) {
                     final property = properties[index];
                     final canSeePrivate = user != null &&
-                        (user.uid == property.addedByUid ||
-                            (user.canManageManagers && user.companyId == property.companyId));
+                        (user.uid == property.addedByUid || (user.canManageManagers && user.companyId == property.companyId));
                     return PropertyCard(property: property, canSeePrivate: canSeePrivate);
                   },
                 );
@@ -220,12 +197,7 @@ class _FilterSheetState extends State<_FilterSheet> {
   Widget build(BuildContext context) {
     final t = widget.t;
     return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
+      padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -254,21 +226,9 @@ class _FilterSheetState extends State<_FilterSheet> {
           Wrap(
             spacing: 8,
             children: [
-              ChoiceChip(
-                label: Text(t.t('filter_all')),
-                selected: _category == null,
-                onSelected: (_) => setState(() => _category = null),
-              ),
-              ChoiceChip(
-                label: Text(t.t('category_apartment')),
-                selected: _category == ListingCategory.apartment,
-                onSelected: (_) => setState(() => _category = ListingCategory.apartment),
-              ),
-              ChoiceChip(
-                label: Text(t.t('category_house_land')),
-                selected: _category == ListingCategory.houseLand,
-                onSelected: (_) => setState(() => _category = ListingCategory.houseLand),
-              ),
+              ChoiceChip(label: Text(t.t('filter_all')), selected: _category == null, onSelected: (_) => setState(() => _category = null)),
+              ChoiceChip(label: Text(t.t('category_apartment')), selected: _category == ListingCategory.apartment, onSelected: (_) => setState(() => _category = ListingCategory.apartment)),
+              ChoiceChip(label: Text(t.t('category_house_land')), selected: _category == ListingCategory.houseLand, onSelected: (_) => setState(() => _category = ListingCategory.houseLand)),
             ],
           ),
           const SizedBox(height: 16),
@@ -276,21 +236,9 @@ class _FilterSheetState extends State<_FilterSheet> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _minPriceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: t.t('filter_min')),
-                ),
-              ),
+              Expanded(child: TextField(controller: _minPriceController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('filter_min')))),
               const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _maxPriceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: t.t('filter_max')),
-                ),
-              ),
+              Expanded(child: TextField(controller: _maxPriceController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('filter_max')))),
             ],
           ),
           const SizedBox(height: 16),
@@ -298,21 +246,9 @@ class _FilterSheetState extends State<_FilterSheet> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(
-                child: TextField(
-                  controller: _minRoomsController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: t.t('filter_min')),
-                ),
-              ),
+              Expanded(child: TextField(controller: _minRoomsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('filter_min')))),
               const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _maxRoomsController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: t.t('filter_max')),
-                ),
-              ),
+              Expanded(child: TextField(controller: _maxRoomsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('filter_max')))),
             ],
           ),
           const SizedBox(height: 20),

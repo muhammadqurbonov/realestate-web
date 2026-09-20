@@ -51,19 +51,12 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Text(t.t('reset_password_desc'), style: const TextStyle(fontSize: 13, color: Colors.grey)),
             const SizedBox(height: 12),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(labelText: t.t('email')),
-            ),
+            TextField(controller: emailController, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: t.t('email'))),
           ],
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Бекор')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, emailController.text.trim()),
-            child: Text(t.t('send')),
-          ),
+          ElevatedButton(onPressed: () => Navigator.pop(context, emailController.text.trim()), child: Text(t.t('send'))),
         ],
       ),
     );
@@ -72,9 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final auth = context.read<AuthService>();
       final error = await auth.sendPasswordResetEmail(result);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error ?? t.t('reset_password_sent'))),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error ?? t.t('reset_password_sent'))));
       }
     }
   }
@@ -91,28 +82,18 @@ class _LoginScreenState extends State<LoginScreen> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [_kPrimary, _kPrimaryDark],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: LinearGradient(colors: [_kPrimary, _kPrimaryDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
               ),
               child: Column(
                 children: [
                   Container(
                     width: 72,
                     height: 72,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
                     child: const Icon(Icons.apartment_rounded, color: Colors.white, size: 36),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    t.t('menu_title'),
-                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
-                  ),
+                  Text(t.t('menu_title'), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
                 ],
               ),
             ),
@@ -124,19 +105,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        t.t('login'),
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                        textAlign: TextAlign.center,
-                      ),
+                      Text(t.t('login'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
                       const SizedBox(height: 24),
                       TextField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: t.t('email'),
-                          prefixIcon: const Icon(Icons.email_outlined),
-                        ),
+                        decoration: InputDecoration(labelText: t.t('email'), prefixIcon: const Icon(Icons.email_outlined)),
                       ),
                       const SizedBox(height: 14),
                       TextField(
@@ -153,10 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: _forgotPassword,
-                          child: Text(t.t('forgot_password'), style: const TextStyle(color: _kPrimary)),
-                        ),
+                        child: TextButton(onPressed: _forgotPassword, child: Text(t.t('forgot_password'), style: const TextStyle(color: _kPrimary))),
                       ),
                       if (_error != null) ...[
                         const SizedBox(height: 4),
@@ -166,14 +137,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ElevatedButton(
                         onPressed: _loading ? null : _submit,
                         child: _loading
-                            ? const SizedBox(
-                                height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                             : Text(t.t('login_button')),
                       ),
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: () => Navigator.push(
-                            context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                         child: Text(t.t('no_account_register')),
                       ),
                     ],

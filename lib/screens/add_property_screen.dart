@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../services/locale_service.dart';
-import '../l10n/app_strings.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
 import '../models/property.dart';
+import '../l10n/app_strings.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
 /// Иловаи хона — раванди қадам ба қадам (як савол дар як саҳифа),
-/// мисли боти GreenHomeTaj. Тартиби қадамҳо вобаста ба категория
-/// (Фуруши хонаҳо / Фуруши ҳавлӣ ва дача) фарқ мекунад.
+/// мисли боти GreenHomeTaj.
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
 
@@ -26,7 +25,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _saving = false;
   String? _error;
 
-  // ---- Ҷавобҳо ----
   ListingCategory? _category;
   HouseLandType? _houseLandType;
   final _roomsController = TextEditingController();
@@ -52,43 +50,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final _storageService = StorageService();
   final _firestoreService = FirestoreService();
 
-  /// Пайдарпаии қадамҳо вобаста ба категорияи интихобшуда.
   List<String> get _steps {
     if (_category == null) return const ['category'];
     if (_category == ListingCategory.apartment) {
       return const [
-        'category',
-        'rooms',
-        'price',
-        'description',
-        'address',
-        'area',
-        'floor',
-        'buildingForm',
-        'renovation',
-        'constructionStatus',
-        'bathroom',
-        'techPassport',
-        'photos',
-        'owner',
+        'category', 'rooms', 'price', 'description', 'address', 'area', 'floor',
+        'buildingForm', 'renovation', 'constructionStatus', 'bathroom', 'techPassport',
+        'photos', 'owner',
       ];
     }
     return const [
-      'category',
-      'houseLandType',
-      'houseFloors',
-      'landSotka',
-      'price',
-      'description',
-      'address',
-      'area',
-      'buildingForm',
-      'renovation',
-      'constructionStatus',
-      'bathroom',
-      'techPassport',
-      'photos',
-      'owner',
+      'category', 'houseLandType', 'houseFloors', 'landSotka', 'price', 'description',
+      'address', 'area', 'buildingForm', 'renovation', 'constructionStatus', 'bathroom',
+      'techPassport', 'photos', 'owner',
     ];
   }
 
@@ -213,12 +187,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       ),
       body: Column(
         children: [
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.grey.shade200,
-            color: _kPrimary,
-            minHeight: 3,
-          ),
+          LinearProgressIndicator(value: progress, backgroundColor: Colors.grey.shade200, color: _kPrimary, minHeight: 3),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -230,9 +199,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------
-  // Сохтани мундариҷаи ҳар қадам
-  // ---------------------------------------------------------------------
   Widget _buildStep(BuildContext context, String key, AppStrings t) {
     switch (key) {
       case 'category':
@@ -243,13 +209,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _Option(t.t('category_house_land'), Icons.holiday_village_rounded),
           ],
           onSelected: (i) {
-            setState(() {
-              _category = i == 0 ? ListingCategory.apartment : ListingCategory.houseLand;
-            });
+            setState(() => _category = i == 0 ? ListingCategory.apartment : ListingCategory.houseLand);
             _goNext();
           },
         );
-
       case 'houseLandType':
         return _ChoiceStep(
           title: t.t('step_houseland_type_title'),
@@ -262,34 +225,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _goNext();
           },
         );
-
       case 'rooms':
-        return _NumberStep(
-          title: t.t('step_rooms_title'),
-          controller: _roomsController,
-          error: _error,
-          t: t,
-          onContinue: _goNext,
-        );
-
+        return _NumberStep(title: t.t('step_rooms_title'), controller: _roomsController, error: _error, t: t, onContinue: _goNext);
       case 'houseFloors':
-        return _NumberStep(
-          title: t.t('step_house_floors_title'),
-          controller: _houseFloorsController,
-          error: _error,
-          t: t,
-          onContinue: _goNext,
-        );
-
+        return _NumberStep(title: t.t('step_house_floors_title'), controller: _houseFloorsController, error: _error, t: t, onContinue: _goNext);
       case 'landSotka':
-        return _NumberStep(
-          title: t.t('step_land_sotka_title'),
-          controller: _landSotkaController,
-          error: _error,
-          t: t,
-          onContinue: _goNext,
-        );
-
+        return _NumberStep(title: t.t('step_land_sotka_title'), controller: _landSotkaController, error: _error, t: t, onContinue: _goNext);
       case 'price':
         return _NumberStep(
           title: t.t('step_price_title'),
@@ -305,16 +246,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _goNext();
           },
         );
-
       case 'description':
-        return _TextAreaStep(
-          title: t.t('step_description_title'),
-          hint: t.t('step_description_hint'),
-          controller: _descriptionController,
-          t: t,
-          onContinue: _goNext,
-        );
-
+        return _TextAreaStep(title: t.t('step_description_title'), hint: t.t('step_description_hint'), controller: _descriptionController, t: t, onContinue: _goNext);
       case 'address':
         return _TextFieldStep(
           title: t.t('step_address_title'),
@@ -329,17 +262,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _goNext();
           },
         );
-
       case 'area':
-        return _NumberStep(
-          title: t.t('step_area_title'),
-          controller: _areaController,
-          suffix: 'м²',
-          error: _error,
-          t: t,
-          onContinue: _goNext,
-        );
-
+        return _NumberStep(title: t.t('step_area_title'), controller: _areaController, suffix: 'м²', error: _error, t: t, onContinue: _goNext);
       case 'floor':
         return _TwoNumberStep(
           title: t.t('step_floor_title'),
@@ -350,7 +274,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           t: t,
           onContinue: _goNext,
         );
-
       case 'buildingForm':
         return _ChoiceStep(
           title: t.t('step_building_form_title'),
@@ -363,7 +286,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _goNext();
           },
         );
-
       case 'renovation':
         return _ChoiceStep(
           title: t.t('step_renovation_title'),
@@ -373,15 +295,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _Option(t.t('renovation_empty'), Icons.inbox_outlined),
           ],
           onSelected: (i) {
-            setState(() => _renovationLevel = [
-                  RenovationLevel.fresh,
-                  RenovationLevel.average,
-                  RenovationLevel.empty,
-                ][i]);
+            setState(() => _renovationLevel = [RenovationLevel.fresh, RenovationLevel.average, RenovationLevel.empty][i]);
             _goNext();
           },
         );
-
       case 'constructionStatus':
         return _ChoiceStep(
           title: t.t('step_construction_status_title'),
@@ -390,12 +307,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _Option(t.t('construction_in_progress'), Icons.construction_rounded),
           ],
           onSelected: (i) {
-            setState(() => _constructionStatus =
-                i == 0 ? ConstructionStatus.built : ConstructionStatus.underConstruction);
+            setState(() => _constructionStatus = i == 0 ? ConstructionStatus.built : ConstructionStatus.underConstruction);
             _goNext();
           },
         );
-
       case 'bathroom':
         return _ChoiceStep(
           title: t.t('step_bathroom_title'),
@@ -408,7 +323,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _goNext();
           },
         );
-
       case 'techPassport':
         return _ChoiceStep(
           title: t.t('step_tech_passport_title'),
@@ -421,16 +335,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _goNext();
           },
         );
-
       case 'photos':
-        return _PhotosStep(
-          title: t.t('step_photos_title'),
-          photos: _photos,
-          onAdd: _pickPhotos,
-          t: t,
-          onContinue: _goNext,
-        );
-
+        return _PhotosStep(title: t.t('step_photos_title'), photos: _photos, onAdd: _pickPhotos, t: t, onContinue: _goNext);
       case 'owner':
         return _OwnerStep(
           t: t,
@@ -442,16 +348,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           saving: _saving,
           onSave: _save,
         );
-
       default:
         return const SizedBox();
     }
   }
 }
-
-// ===========================================================================
-// Виҷетҳои ёрирасон барои ҳар навъи қадам
-// ===========================================================================
 
 class _Option {
   final String label;
@@ -462,25 +363,17 @@ class _Option {
 class _StepTitle extends StatelessWidget {
   final String title;
   const _StepTitle({required this.title});
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, height: 1.3),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Text(title, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, height: 1.3)),
+      );
 }
 
-/// Қадами интихобӣ — тугмаҳои калон, зер кардан = гузаштани худкор.
 class _ChoiceStep extends StatelessWidget {
   final String title;
   final List<_Option> options;
   final void Function(int index) onSelected;
-
   const _ChoiceStep({required this.title, required this.options, required this.onSelected});
 
   @override
@@ -502,29 +395,18 @@ class _ChoiceStep extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.grey.shade200),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 3))],
                 ),
                 child: Row(
                   children: [
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
-                        color: _kPrimary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      decoration: BoxDecoration(color: _kPrimary.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
                       child: Icon(o.icon, color: _kPrimary, size: 22),
                     ),
                     const SizedBox(width: 14),
-                    Expanded(
-                      child: Text(o.label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    ),
+                    Expanded(child: Text(o.label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
                     const Icon(Icons.chevron_right_rounded, color: Colors.grey),
                   ],
                 ),
@@ -537,12 +419,10 @@ class _ChoiceStep extends StatelessWidget {
   }
 }
 
-Widget _continueButton(AppStrings t, VoidCallback onPressed) {
-  return SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(onPressed: onPressed, child: Text(t.t('continue_button'))),
-  );
-}
+Widget _continueButton(AppStrings t, VoidCallback onPressed) => SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(onPressed: onPressed, child: Text(t.t('continue_button'))),
+    );
 
 class _NumberStep extends StatelessWidget {
   final String title;
@@ -551,15 +431,7 @@ class _NumberStep extends StatelessWidget {
   final String? error;
   final AppStrings t;
   final VoidCallback onContinue;
-
-  const _NumberStep({
-    required this.title,
-    required this.controller,
-    this.suffix,
-    required this.error,
-    required this.t,
-    required this.onContinue,
-  });
+  const _NumberStep({required this.title, required this.controller, this.suffix, required this.error, required this.t, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
@@ -574,10 +446,7 @@ class _NumberStep extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           decoration: InputDecoration(suffixText: suffix),
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          Text(error!, style: const TextStyle(color: Colors.red)),
-        ],
+        if (error != null) ...[const SizedBox(height: 8), Text(error!, style: const TextStyle(color: Colors.red))],
         const SizedBox(height: 24),
         _continueButton(t, onContinue),
       ],
@@ -593,16 +462,7 @@ class _TwoNumberStep extends StatelessWidget {
   final TextEditingController controller2;
   final AppStrings t;
   final VoidCallback onContinue;
-
-  const _TwoNumberStep({
-    required this.title,
-    required this.label1,
-    required this.label2,
-    required this.controller1,
-    required this.controller2,
-    required this.t,
-    required this.onContinue,
-  });
+  const _TwoNumberStep({required this.title, required this.label1, required this.label2, required this.controller1, required this.controller2, required this.t, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
@@ -612,22 +472,9 @@ class _TwoNumberStep extends StatelessWidget {
         _StepTitle(title: title),
         Row(
           children: [
-            Expanded(
-              child: TextField(
-                controller: controller1,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                decoration: InputDecoration(labelText: label1),
-              ),
-            ),
+            Expanded(child: TextField(controller: controller1, keyboardType: TextInputType.number, autofocus: true, decoration: InputDecoration(labelText: label1))),
             const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: controller2,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: label2),
-              ),
-            ),
+            Expanded(child: TextField(controller: controller2, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: label2))),
           ],
         ),
         const SizedBox(height: 24),
@@ -643,14 +490,7 @@ class _TextFieldStep extends StatelessWidget {
   final String? error;
   final AppStrings t;
   final VoidCallback onContinue;
-
-  const _TextFieldStep({
-    required this.title,
-    required this.controller,
-    required this.error,
-    required this.t,
-    required this.onContinue,
-  });
+  const _TextFieldStep({required this.title, required this.controller, required this.error, required this.t, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
@@ -659,10 +499,7 @@ class _TextFieldStep extends StatelessWidget {
       children: [
         _StepTitle(title: title),
         TextField(controller: controller, autofocus: true, style: const TextStyle(fontSize: 17)),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          Text(error!, style: const TextStyle(color: Colors.red)),
-        ],
+        if (error != null) ...[const SizedBox(height: 8), Text(error!, style: const TextStyle(color: Colors.red))],
         const SizedBox(height: 24),
         _continueButton(t, onContinue),
       ],
@@ -676,14 +513,7 @@ class _TextAreaStep extends StatelessWidget {
   final TextEditingController controller;
   final AppStrings t;
   final VoidCallback onContinue;
-
-  const _TextAreaStep({
-    required this.title,
-    required this.hint,
-    required this.controller,
-    required this.t,
-    required this.onContinue,
-  });
+  const _TextAreaStep({required this.title, required this.hint, required this.controller, required this.t, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
@@ -691,12 +521,7 @@ class _TextAreaStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _StepTitle(title: title),
-        TextField(
-          controller: controller,
-          maxLines: 5,
-          autofocus: true,
-          decoration: InputDecoration(hintText: hint),
-        ),
+        TextField(controller: controller, maxLines: 5, autofocus: true, decoration: InputDecoration(hintText: hint)),
         const SizedBox(height: 24),
         _continueButton(t, onContinue),
       ],
@@ -710,14 +535,7 @@ class _PhotosStep extends StatelessWidget {
   final VoidCallback onAdd;
   final AppStrings t;
   final VoidCallback onContinue;
-
-  const _PhotosStep({
-    required this.title,
-    required this.photos,
-    required this.onAdd,
-    required this.t,
-    required this.onContinue,
-  });
+  const _PhotosStep({required this.title, required this.photos, required this.onAdd, required this.t, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
@@ -729,10 +547,7 @@ class _PhotosStep extends StatelessWidget {
           spacing: 10,
           runSpacing: 10,
           children: [
-            ...photos.map((f) => ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: _XFileThumb(file: f, size: 92),
-                )),
+            ...photos.map((f) => ClipRRect(borderRadius: BorderRadius.circular(12), child: _XFileThumb(file: f, size: 92))),
             InkWell(
               onTap: onAdd,
               borderRadius: BorderRadius.circular(12),
@@ -740,11 +555,7 @@ class _PhotosStep extends StatelessWidget {
                 width: 92,
                 height: 92,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                  color: Colors.white,
-                ),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300), color: Colors.white),
                 child: Icon(Icons.add_a_photo_outlined, color: Colors.grey[600]),
               ),
             ),
@@ -766,17 +577,7 @@ class _OwnerStep extends StatelessWidget {
   final String? error;
   final bool saving;
   final VoidCallback onSave;
-
-  const _OwnerStep({
-    required this.t,
-    required this.phoneController,
-    required this.commissionValueController,
-    required this.commissionType,
-    required this.onCommissionTypeChanged,
-    required this.error,
-    required this.saving,
-    required this.onSave,
-  });
+  const _OwnerStep({required this.t, required this.phoneController, required this.commissionValueController, required this.commissionType, required this.onCommissionTypeChanged, required this.error, required this.saving, required this.onSave});
 
   @override
   Widget build(BuildContext context) {
@@ -786,62 +587,36 @@ class _OwnerStep extends StatelessWidget {
         _StepTitle(title: t.t('step_owner_title')),
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.amber.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.amber.withOpacity(0.4)),
-          ),
+          decoration: BoxDecoration(color: Colors.amber.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.amber.withOpacity(0.4))),
           child: Row(
             children: [
               const Icon(Icons.lock_outline, size: 18, color: Colors.orange),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(t.t('private_note'), style: const TextStyle(fontSize: 12, color: Colors.orange)),
-              ),
+              Expanded(child: Text(t.t('private_note'), style: const TextStyle(fontSize: 12, color: Colors.orange))),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        TextField(
-          controller: phoneController,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(labelText: t.t('owner_phone')),
-        ),
+        TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: t.t('owner_phone'))),
         const SizedBox(height: 16),
         Text(t.t('commission_type'), style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        _RadioCard(
-          label: t.t('commission_percent'),
-          selected: commissionType == CommissionType.percent,
-          onTap: () => onCommissionTypeChanged(CommissionType.percent),
-        ),
+        _RadioCard(label: t.t('commission_percent'), selected: commissionType == CommissionType.percent, onTap: () => onCommissionTypeChanged(CommissionType.percent)),
         const SizedBox(height: 8),
-        _RadioCard(
-          label: t.t('commission_margin'),
-          selected: commissionType == CommissionType.margin,
-          onTap: () => onCommissionTypeChanged(CommissionType.margin),
-        ),
+        _RadioCard(label: t.t('commission_margin'), selected: commissionType == CommissionType.margin, onTap: () => onCommissionTypeChanged(CommissionType.margin)),
         const SizedBox(height: 16),
         TextField(
           controller: commissionValueController,
           keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: t.t('commission_value'),
-            suffixText: commissionType == CommissionType.percent ? '%' : t.t('somoni'),
-          ),
+          decoration: InputDecoration(labelText: t.t('commission_value'), suffixText: commissionType == CommissionType.percent ? '%' : t.t('somoni')),
         ),
-        if (error != null) ...[
-          const SizedBox(height: 12),
-          Text(error!, style: const TextStyle(color: Colors.red)),
-        ],
+        if (error != null) ...[const SizedBox(height: 12), Text(error!, style: const TextStyle(color: Colors.red))],
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: saving ? null : onSave,
-            child: saving
-                ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text(t.t('save')),
+            child: saving ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)) : Text(t.t('save')),
           ),
         ),
       ],
@@ -869,11 +644,7 @@ class _RadioCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              color: selected ? _kPrimary : Colors.grey,
-              size: 20,
-            ),
+            Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked, color: selected ? _kPrimary : Colors.grey, size: 20),
             const SizedBox(width: 10),
             Expanded(child: Text(label, style: const TextStyle(fontSize: 13.5))),
           ],
@@ -883,8 +654,6 @@ class _RadioCard extends StatelessWidget {
   }
 }
 
-/// Пешнамоиши расм аз XFile — дар ҳама платформаҳо (Android, iOS, Web)
-/// кор мекунад, зеро аз readAsBytes() + Image.memory истифода мебарад.
 class _XFileThumb extends StatelessWidget {
   final XFile file;
   final double size;
@@ -896,11 +665,7 @@ class _XFileThumb extends StatelessWidget {
       future: file.readAsBytes(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Container(
-            width: size,
-            height: size,
-            color: Colors.grey.shade200,
-          );
+          return Container(width: size, height: size, color: Colors.grey.shade200);
         }
         return Image.memory(snapshot.data!, width: size, height: size, fit: BoxFit.cover);
       },

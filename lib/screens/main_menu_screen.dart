@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/locale_service.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+import '../services/notification_seen_service.dart';
 import '../l10n/app_strings.dart';
 import '../models/app_user.dart';
+import '../models/app_notification.dart';
 import 'add_property_screen.dart';
 import 'my_properties_screen.dart';
 import 'all_properties_screen.dart';
 import 'clients_screen.dart';
 import 'settings_screen.dart';
+import 'notifications_screen.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
@@ -36,6 +40,8 @@ class MainMenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(t.t('menu_title')),
         actions: [
+          if (user != null) _NotificationBell(companyId: user.companyId),
+          const SizedBox(width: 4),
           _LanguageSwitch(localeService: localeService),
           const SizedBox(width: 12),
         ],
@@ -136,6 +142,71 @@ class MainMenuScreen extends StatelessWidget {
   }
 }
 
+/// Иконаи зангӯла бо тегчаи шумораи огоҳиномаҳои надида.
+class _NotificationBell extends StatefulWidget {
+  final String companyId;
+  const _NotificationBell({required this.companyId});
+
+  @override
+  State<_NotificationBell> createState() => _NotificationBellState();
+}
+
+class _NotificationBellState extends State<_NotificationBell> {
+  Future<DateTime>? _lastSeenFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastSeenFuture = NotificationSeenService().getLastSeen();
+  }
+
+  Future<void> _open() async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+    // Пас аз баргаштан, "дидашуд" нав шудааст — тегчаро нав мекунем.
+    setState(() => _lastSeenFuture = NotificationSeenService().getLastSeen());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DateTime>(
+      future: _lastSeenFuture,
+      builder: (context, lastSeenSnap) {
+        final lastSeen = lastSeenSnap.data ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return StreamBuilder<List<AppNotification>>(
+          stream: FirestoreService().companyNotifications(widget.companyId),
+          builder: (context, snap) {
+            final unread = (snap.data ?? [])
+                .where((n) => n.createdAt.isAfter(lastSeen))
+                .length;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined),
+                  onPressed: _open,
+                ),
+                if (unread > 0)
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+                      child: Text(
+                        unread > 9 ? '9+' : '$unread',
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 class _MenuTile extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -163,11 +234,7 @@ class _MenuTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
+            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 12, offset: const Offset(0, 4)),
           ],
         ),
         child: fullWidth
@@ -175,8 +242,7 @@ class _MenuTile extends StatelessWidget {
                 children: [
                   _IconBadge(icon: icon, color: color, size: 38),
                   const SizedBox(width: 12),
-                  Text(label,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
                 ],
               )
             : Column(
@@ -185,8 +251,7 @@ class _MenuTile extends StatelessWidget {
                 children: [
                   _IconBadge(icon: icon, color: color, size: 44),
                   const SizedBox(height: 12),
-                  Text(label,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                 ],
               ),
       ),
@@ -205,10 +270,7 @@ class _IconBadge extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(size * 0.32),
-      ),
+      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(size * 0.32)),
       child: Icon(icon, color: color, size: size * 0.55),
     );
   }

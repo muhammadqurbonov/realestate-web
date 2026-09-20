@@ -5,6 +5,11 @@ import '../services/locale_service.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
+/// Ширкати ягона, ки ин барнома барояш сохта шудааст. Азбаски ҳозир
+/// танҳо як ширкат аз ин барнома истифода мебарад, рамзи ширкатро аз
+/// корбар намепурсем — ҳама худкор ба ҳамин companyId ҳамроҳ мешаванд.
+const String kDefaultCompanyId = 'Real-Estate';
+
 /// Худсабтномкунии менеҷер. Дар охир, суперадмини ширкат метавонад
 /// ин корбарро ба админ табдил диҳад ё ҳазф кунад (дар "Кормандон").
 class RegisterScreen extends StatefulWidget {
@@ -19,7 +24,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _companyCodeController = TextEditingController();
   bool _obscure = true;
   bool _loading = false;
   String? _error;
@@ -29,8 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_nameController.text.trim().isEmpty ||
         _phoneController.text.trim().isEmpty ||
         _emailController.text.trim().isEmpty ||
-        _passwordController.text.isEmpty ||
-        _companyCodeController.text.trim().isEmpty) {
+        _passwordController.text.isEmpty) {
       setState(() => _error = t.t('required_field'));
       return;
     }
@@ -46,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       phone: _phoneController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
-      companyId: _companyCodeController.text.trim(),
+      companyId: kDefaultCompanyId,
     );
 
     setState(() {
@@ -96,15 +99,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: _companyCodeController,
-              decoration: InputDecoration(
-                labelText: t.t('company_code'),
-                helperText: t.t('company_code_hint'),
-                prefixIcon: const Icon(Icons.business_outlined),
               ),
             ),
             if (_error != null) ...[

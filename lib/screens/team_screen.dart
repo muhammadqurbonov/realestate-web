@@ -8,10 +8,6 @@ import '../models/app_user.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
-/// Рӯйхати менеҷерону админҳои ширкат — танҳо суперадмин/админ мебинад.
-/// Суперадмин метавонад ҳам менеҷер, ҳам админро ҳазф кунад.
-/// Админ танҳо менеҷеронро ҳазф карда метавонад (на админи дигар, на
-/// суперадминро).
 class TeamScreen extends StatelessWidget {
   const TeamScreen({super.key});
 
@@ -46,9 +42,6 @@ class TeamScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final user = users[index];
               final isMe = user.uid == me.uid;
-
-              // Иҷозати ҳазф: суперадмин ҳамаро (ба ҷуз худаш) ҳазф
-              // мекунад; админ танҳо менеҷеронро.
               final canDelete = !isMe &&
                   ((me.role == UserRole.superAdmin) ||
                       (me.role == UserRole.admin && user.role == UserRole.manager));
@@ -56,11 +49,7 @@ class TeamScreen extends StatelessWidget {
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.grey.shade200)),
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -81,8 +70,7 @@ class TeamScreen extends StatelessWidget {
                               Text(user.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
                               if (isMe) ...[
                                 const SizedBox(width: 6),
-                                Text('(${t.locale == AppLocale.ru ? "вы" : "шумо"})',
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                Text('(${t.locale == AppLocale.ru ? "вы" : "шумо"})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                               ],
                             ],
                           ),
@@ -97,14 +85,8 @@ class TeamScreen extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _roleColor(user.role).withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            _roleLabel(user.role, t),
-                            style: TextStyle(color: _roleColor(user.role), fontSize: 11, fontWeight: FontWeight.w700),
-                          ),
+                          decoration: BoxDecoration(color: _roleColor(user.role).withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
+                          child: Text(_roleLabel(user.role, t), style: TextStyle(color: _roleColor(user.role), fontSize: 11, fontWeight: FontWeight.w700)),
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
@@ -113,9 +95,7 @@ class TeamScreen extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.arrow_upward_rounded, color: Colors.orange, size: 20),
                                 tooltip: t.t('promote_to_admin'),
-                                onPressed: () => context
-                                    .read<AuthService>()
-                                    .updateUserRole(user.uid, UserRole.admin),
+                                onPressed: () => context.read<AuthService>().updateUserRole(user.uid, UserRole.admin),
                               ),
                             if (canDelete)
                               IconButton(
@@ -139,9 +119,9 @@ class TeamScreen extends StatelessWidget {
   String _roleLabel(UserRole role, AppStrings t) {
     switch (role) {
       case UserRole.superAdmin:
-        return t.locale == AppLocale.ru ? 'Суперадмин' : 'Суперадмин';
+        return 'Суперадмин';
       case UserRole.admin:
-        return t.locale == AppLocale.ru ? 'Админ' : 'Админ';
+        return 'Админ';
       case UserRole.manager:
         return t.locale == AppLocale.ru ? 'Менеджер' : 'Менеҷер';
     }
@@ -158,26 +138,16 @@ class TeamScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _confirmDelete(
-    BuildContext context,
-    AppUser user,
-    FirestoreService firestoreService,
-    AppStrings t,
-  ) async {
+  Future<void> _confirmDelete(BuildContext context, AppUser user, FirestoreService firestoreService, AppStrings t) async {
     final isRu = t.locale == AppLocale.ru;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(isRu ? 'Удалить ${user.fullName}?' : '${user.fullName}-ро ҳазф кунем?'),
-        content: Text(isRu
-            ? 'Он потеряет доступ к приложению.'
-            : 'Ӯ дигар ба барнома дастрасӣ надорад.'),
+        content: Text(isRu ? 'Он потеряет доступ к приложению.' : 'Ӯ дигар ба барнома дастрасӣ надорад.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(isRu ? 'Отмена' : 'Бекор')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(isRu ? 'Удалить' : 'Ҳазф', style: const TextStyle(color: Colors.red)),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(isRu ? 'Удалить' : 'Ҳазф', style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
