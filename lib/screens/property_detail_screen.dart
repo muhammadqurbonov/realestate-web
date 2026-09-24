@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/property.dart';
 import '../services/locale_service.dart';
 import '../services/firestore_service.dart';
+import '../services/auth_service.dart';
 import '../l10n/app_strings.dart';
 import '../services/whatsapp_share.dart';
 import 'edit_property_screen.dart';
@@ -88,6 +89,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         MaterialPageRoute(
                           builder: (_) => EditPropertyScreen(
                             property: property,
+                            canReassignManager:
+                                context.read<AuthService>().currentUser?.canManageManagers ?? false,
                             privateInfo: privateInfo ??
                                 PropertyPrivateInfo(
                                   ownerPhone: '',

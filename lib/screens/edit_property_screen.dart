@@ -7,14 +7,21 @@ import '../services/firestore_service.dart';
 import '../services/storage_service.dart';
 import '../l10n/app_strings.dart';
 import '../models/property.dart';
+import '../models/app_user.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
 class EditPropertyScreen extends StatefulWidget {
   final Property property;
   final PropertyPrivateInfo privateInfo;
+  final bool canReassignManager;
 
-  const EditPropertyScreen({super.key, required this.property, required this.privateInfo});
+  const EditPropertyScreen({
+    super.key,
+    required this.property,
+    required this.privateInfo,
+    this.canReassignManager = false,
+  });
 
   @override
   State<EditPropertyScreen> createState() => _EditPropertyScreenState();
@@ -42,6 +49,9 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   late TextEditingController _ownerPhoneController;
   late CommissionType _commissionType;
   late TextEditingController _commissionValueController;
+  late String _addedByUid;
+  late String _addedByName;
+  late String _addedByPhone;
 
   bool _saving = false;
   bool _deleting = false;
@@ -76,6 +86,9 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     _commissionType = widget.privateInfo.commissionType;
     _commissionValueController =
         TextEditingController(text: widget.privateInfo.commissionValue == 0 ? '' : '${widget.privateInfo.commissionValue}');
+    _addedByUid = p.addedByUid;
+    _addedByName = p.addedByName;
+    _addedByPhone = p.addedByPhone;
   }
 
   Future<void> _pickPhotos() async {
@@ -99,9 +112,9 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
       final updated = Property(
         id: widget.property.id,
         companyId: widget.property.companyId,
-        addedByUid: widget.property.addedByUid,
-        addedByName: widget.property.addedByName,
-        addedByPhone: widget.property.addedByPhone,
+        addedByUid: _addedByUid,
+        addedByName: _addedByName,
+        addedByPhone: _addedByPhone,
         createdAt: widget.property.createdAt,
         isSold: widget.property.isSold,
         category: _category,
@@ -199,6 +212,40 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            if (widget.canReassignManager) ...[
+              Text(t.t('added_by'), style: const TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              StreamBuilder<List<AppUser>>(
+                stream: _firestoreService.companyUsers(widget.property.companyId),
+                builder: (context, snapshot) {
+                  final users = snapshot.data ?? [];
+                  // Агар менеҷери ҷорӣ дар рӯйхат набошад (масалан ҳазф шудааст),
+                  // ба таври муваққатӣ илова мекунем, то Dropdown хато надиҳад.
+                  final hasCurrentInList = users.any((u) => u.uid == _addedByUid);
+                  return DropdownButtonFormField<String>(
+                    value: hasCurrentInList ? _addedByUid : null,
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
+                    hint: Text(_addedByName.isNotEmpty ? _addedByName : '—'),
+                    items: users
+                        .map((u) => DropdownMenuItem(
+                              value: u.uid,
+                              child: Text('${u.fullName} (${u.phone})'),
+                            ))
+                        .toList(),
+                    onChanged: (uid) {
+                      if (uid == null) return;
+                      final selected = users.firstWhere((u) => u.uid == uid);
+                      setState(() {
+                        _addedByUid = selected.uid;
+                        _addedByName = selected.fullName;
+                        _addedByPhone = selected.phone;
+                      });
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
             if (_category == ListingCategory.apartment) ...[
               TextField(controller: _roomsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_rooms_title'))),
               const SizedBox(height: 12),
