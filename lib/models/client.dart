@@ -3,6 +3,7 @@ class Client {
   final String id;
   final String companyId;
   final String addedByUid;
+  final String addedByName;
   final String fullName;
   final String phone;
   final int minRooms;
@@ -16,6 +17,7 @@ class Client {
     required this.id,
     required this.companyId,
     required this.addedByUid,
+    required this.addedByName,
     required this.fullName,
     required this.phone,
     required this.minRooms,
@@ -31,6 +33,7 @@ class Client {
       id: id,
       companyId: map['companyId'] ?? '',
       addedByUid: map['addedByUid'] ?? '',
+      addedByName: map['addedByName'] ?? '',
       fullName: map['fullName'] ?? '',
       phone: map['phone'] ?? '',
       minRooms: map['minRooms'] ?? 0,
@@ -48,6 +51,7 @@ class Client {
     return {
       'companyId': companyId,
       'addedByUid': addedByUid,
+      'addedByName': addedByName,
       'fullName': fullName,
       'phone': phone,
       'minRooms': minRooms,

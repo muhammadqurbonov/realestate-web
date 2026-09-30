@@ -5,6 +5,7 @@ import '../services/firestore_service.dart';
 import '../services/locale_service.dart';
 import '../models/client.dart';
 import '../models/property.dart';
+import '../models/app_user.dart';
 import '../widgets/property_card.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
@@ -28,12 +29,14 @@ class ClientsScreen extends StatelessWidget {
           context: context,
           isScrollControlled: true,
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-          builder: (_) => _AddClientSheet(companyId: user.companyId, addedByUid: user.uid),
+          builder: (_) => _AddClientSheet(companyId: user.companyId, addedByUid: user.uid, addedByName: user.fullName),
         ),
         child: const Icon(Icons.add),
       ),
       body: StreamBuilder<List<Client>>(
-        stream: firestoreService.companyClients(user.companyId),
+        stream: user.role == UserRole.superAdmin
+            ? firestoreService.companyClients(user.companyId)
+            : firestoreService.myClients(user.uid),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -55,7 +58,7 @@ class ClientsScreen extends StatelessWidget {
             itemCount: clients.length,
             itemBuilder: (context, index) {
               final client = clients[index];
-              final canDelete = user.uid == client.addedByUid || user.canManageManagers;
+              final canDelete = user.uid == client.addedByUid || user.role == UserRole.superAdmin;
               return _ClientTile(client: client, firestoreService: firestoreService, canDelete: canDelete);
             },
           );
@@ -115,6 +118,13 @@ class _ClientTile extends StatelessWidget {
                 '${client.minRooms}-${client.maxRooms} ${t.t('property_rooms').toLowerCase()} · ${client.minBudget.toStringAsFixed(0)}-${client.maxBudget.toStringAsFixed(0)} ${t.t('somoni')}',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
+              if (client.addedByName.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  '${t.t('added_by')}: ${client.addedByName}',
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                ),
+              ],
             ],
           ),
         ),
@@ -147,7 +157,8 @@ class _ClientTile extends StatelessWidget {
 class _AddClientSheet extends StatefulWidget {
   final String companyId;
   final String addedByUid;
-  const _AddClientSheet({required this.companyId, required this.addedByUid});
+  final String addedByName;
+  const _AddClientSheet({required this.companyId, required this.addedByUid, required this.addedByName});
 
   @override
   State<_AddClientSheet> createState() => _AddClientSheetState();
@@ -169,6 +180,7 @@ class _AddClientSheetState extends State<_AddClientSheet> {
       id: '',
       companyId: widget.companyId,
       addedByUid: widget.addedByUid,
+      addedByName: widget.addedByName,
       fullName: _nameController.text.trim(),
       phone: _phoneController.text.trim(),
       minRooms: int.tryParse(_minRoomsController.text) ?? 0,

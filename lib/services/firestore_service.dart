@@ -98,6 +98,19 @@ class FirestoreService {
     });
   }
 
+  /// Муштариёни ФАҚАТ ҳамин менеҷер (менеҷерони оддӣ/админҳо танҳо
+  /// муштариёни худро мебинанд — тамоми рӯйхат танҳо ба суперадмин
+  /// намоён аст, бинед companyClients боло).
+  Stream<List<Client>> myClients(String uid) {
+    return _clients.where('addedByUid', isEqualTo: uid).snapshots().map((snap) {
+      final list = snap.docs
+          .map((d) => Client.fromMap(d.id, d.data() as Map<String, dynamic>))
+          .toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
+  }
+
   Future<List<Property>> matchPropertiesForClient(Client client) async {
     final snap = await _properties.where('isSold', isEqualTo: false).get();
     final all = snap.docs
