@@ -13,6 +13,7 @@ import 'all_properties_screen.dart';
 import 'clients_screen.dart';
 import 'settings_screen.dart';
 import 'notifications_screen.dart';
+import 'manager_properties_screen.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 
@@ -122,6 +123,13 @@ class MainMenuScreen extends StatelessWidget {
                     label: t.t('clients'),
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const ClientsScreen())),
+                  ),
+                  _MenuTile(
+                    icon: Icons.badge_rounded,
+                    color: const Color(0xFF2F9E82),
+                    label: t.t('manager_properties_title'),
+                    onTap: () => Navigator.push(
+                        context, MaterialPageRoute(builder: (_) => const ManagerPropertiesScreen())),
                   ),
                 ],
               ),

@@ -10,7 +10,7 @@ import 'screens/main_menu_screen.dart';
 
 const _kPrimary = Color(0xFF0F6B5C);
 const _kPrimaryDark = Color(0xFF0A4A40);
-const _kBackground = Color(0xFFF6F8F7);
+const _kBackground = Color(0xFFE9F5F2);
 const _kSurface = Color(0xFFFFFFFF);
 
 Future<void> main() async {

@@ -173,6 +173,16 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       Expanded(child: Text(property.address, style: const TextStyle(color: Colors.grey))),
                     ],
                   ),
+                  if (property.landmark.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.near_me_outlined, size: 14, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Expanded(child: Text(property.landmark, style: const TextStyle(color: Colors.grey, fontSize: 12.5))),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Row(
                     children: [

@@ -97,7 +97,7 @@ class Property {
   final double price;
   final String description;
   final String address;
-  final String landmark; // <--- Мавқеъ/ориентир илова шуд
+  final String landmark;
   final double area;
   final int floor;
   final int totalFloors;
@@ -126,7 +126,7 @@ class Property {
     required this.price,
     required this.description,
     required this.address,
-    this.landmark = '', // <--- Илова шуд (бо арзиши пешфарз)
+    this.landmark = '',
     required this.area,
     this.floor = 0,
     this.totalFloors = 0,
@@ -159,7 +159,7 @@ class Property {
       price: (map['price'] ?? 0).toDouble(),
       description: map['description'] ?? '',
       address: map['address'] ?? '',
-      landmark: map['landmark'] ?? '', // <--- Илова шуд
+      landmark: map['landmark'] ?? '',
       area: (map['area'] ?? 0).toDouble(),
       floor: map['floor'] ?? 0,
       totalFloors: map['totalFloors'] ?? 0,
@@ -188,7 +188,7 @@ class Property {
       'price': price,
       'description': description,
       'address': address,
-      'landmark': landmark, // <--- Илова шуд
+      'landmark': landmark,
       'area': area,
       'floor': floor,
       'totalFloors': totalFloors,

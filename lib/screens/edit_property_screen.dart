@@ -36,6 +36,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   late TextEditingController _priceController;
   late TextEditingController _descriptionController;
   late TextEditingController _addressController;
+  late TextEditingController _landmarkController;
   late TextEditingController _areaController;
   late TextEditingController _floorController;
   late TextEditingController _totalFloorsController;
@@ -73,6 +74,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     _priceController = TextEditingController(text: p.price == 0 ? '' : '${p.price}');
     _descriptionController = TextEditingController(text: p.description);
     _addressController = TextEditingController(text: p.address);
+    _landmarkController = TextEditingController(text: p.landmark);
     _areaController = TextEditingController(text: p.area == 0 ? '' : '${p.area}');
     _floorController = TextEditingController(text: p.floor == 0 ? '' : '${p.floor}');
     _totalFloorsController = TextEditingController(text: p.totalFloors == 0 ? '' : '${p.totalFloors}');
@@ -125,6 +127,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
         price: double.tryParse(_priceController.text) ?? 0,
         description: _descriptionController.text.trim(),
         address: _addressController.text.trim(),
+        landmark: _landmarkController.text.trim(),
         area: double.tryParse(_areaController.text) ?? 0,
         floor: int.tryParse(_floorController.text) ?? 0,
         totalFloors: int.tryParse(_totalFloorsController.text) ?? 0,
@@ -260,6 +263,8 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
             TextField(controller: _descriptionController, maxLines: 4, decoration: InputDecoration(labelText: t.t('step_description_title'))),
             const SizedBox(height: 12),
             TextField(controller: _addressController, decoration: InputDecoration(labelText: t.t('step_address_title'))),
+            const SizedBox(height: 12),
+            TextField(controller: _landmarkController, decoration: InputDecoration(labelText: t.t('landmark'))),
             const SizedBox(height: 12),
             TextField(controller: _areaController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.t('step_area_title'), suffixText: 'м²')),
             if (_category == ListingCategory.apartment) ...[

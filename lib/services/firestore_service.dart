@@ -58,6 +58,19 @@ class FirestoreService {
     return Property.fromMap(doc.id, doc.data() as Map<String, dynamic>);
   }
 
+  /// Хонаҳое, ки суроғаашон бо [address] мувофиқ аст (новобаста аз
+  /// ҳарфи калон/хурд ва фосилаҳои изофӣ) — барои огоҳ кардани
+  /// менеҷер пеш аз сабти такрорӣ.
+  Future<List<Property>> findSimilarByAddress(String companyId, String address) async {
+    final normalized = address.trim().toLowerCase();
+    if (normalized.isEmpty) return [];
+    final snap = await _properties.where('companyId', isEqualTo: companyId).get();
+    return snap.docs
+        .map((d) => Property.fromMap(d.id, d.data() as Map<String, dynamic>))
+        .where((p) => p.address.trim().toLowerCase() == normalized)
+        .toList();
+  }
+
   Future<PropertyPrivateInfo?> getPrivateInfo(String propertyId) async {
     final doc = await _properties.doc(propertyId).collection('private').doc('contact').get();
     if (!doc.exists) return null;

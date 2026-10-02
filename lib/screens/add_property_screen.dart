@@ -33,6 +33,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _addressController = TextEditingController();
+  final _landmarkController = TextEditingController();
   final _areaController = TextEditingController();
   final _floorController = TextEditingController();
   final _totalFloorsController = TextEditingController();
@@ -54,14 +55,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     if (_category == null) return const ['category'];
     if (_category == ListingCategory.apartment) {
       return const [
-        'category', 'rooms', 'price', 'description', 'address', 'area', 'floor',
+        'category', 'rooms', 'price', 'description', 'address', 'landmark', 'area', 'floor',
         'buildingForm', 'renovation', 'constructionStatus', 'bathroom', 'techPassport',
         'photos', 'owner',
       ];
     }
     return const [
       'category', 'houseLandType', 'houseFloors', 'landSotka', 'price', 'description',
-      'address', 'area', 'buildingForm', 'renovation', 'constructionStatus', 'bathroom',
+      'address', 'landmark', 'area', 'buildingForm', 'renovation', 'constructionStatus', 'bathroom',
       'techPassport', 'photos', 'owner',
     ];
   }
@@ -99,6 +100,39 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       return;
     }
 
+    // Санҷиши такрори суроға — пеш аз сабт огоҳ мекунем.
+    final similar = await _firestoreService.findSimilarByAddress(user.companyId, _addressController.text);
+    if (similar.isNotEmpty && mounted) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(t.t('duplicate_title')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.t('duplicate_desc')),
+                const SizedBox(height: 10),
+                ...similar.map((p) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        '• ${p.address} — ${p.addedByName} (${p.price.toStringAsFixed(0)} ${t.t('somoni')})',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    )),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.t('cancel'))),
+            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(t.t('duplicate_continue'))),
+          ],
+        ),
+      );
+      if (proceed != true) return;
+    }
+
     setState(() {
       _saving = true;
       _error = null;
@@ -132,6 +166,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         price: double.tryParse(_priceController.text) ?? 0,
         description: _descriptionController.text.trim(),
         address: _addressController.text.trim(),
+        landmark: _landmarkController.text.trim(),
         area: double.tryParse(_areaController.text) ?? 0,
         floor: int.tryParse(_floorController.text) ?? 0,
         totalFloors: int.tryParse(_totalFloorsController.text) ?? 0,
@@ -261,6 +296,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             }
             _goNext();
           },
+        );
+      case 'landmark':
+        return _TextFieldStep(
+          title: t.t('step_landmark_title'),
+          controller: _landmarkController,
+          error: null,
+          t: t,
+          onContinue: _goNext,
         );
       case 'area':
         return _NumberStep(title: t.t('step_area_title'), controller: _areaController, suffix: 'м²', error: _error, t: t, onContinue: _goNext);

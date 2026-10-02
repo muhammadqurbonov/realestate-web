@@ -6,17 +6,17 @@ import '../l10n/app_strings.dart';
 class LocaleService extends ChangeNotifier {
   static const _prefsKey = 'app_locale';
 
-  AppLocale _locale = AppLocale.tj;
+  AppLocale _locale = AppLocale.ru;
   AppLocale get locale => _locale;
   AppStrings get strings => AppStrings(_locale);
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(_prefsKey);
-    if (saved == 'ru') {
-      _locale = AppLocale.ru;
-    } else {
+    if (saved == 'tj') {
       _locale = AppLocale.tj;
+    } else {
+      _locale = AppLocale.ru;
     }
     notifyListeners();
   }
