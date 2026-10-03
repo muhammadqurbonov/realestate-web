@@ -96,7 +96,7 @@ class MainMenuScreen extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 14,
                 crossAxisSpacing: 14,
-                childAspectRatio: 1.2,
+                childAspectRatio: 1.1,
                 children: [
                   _MenuTile(
                     icon: Icons.add_home_work_rounded,
@@ -223,7 +223,7 @@ class _NotificationBellState extends State<_NotificationBell> {
   }
 }
 
-class _MenuTile extends StatelessWidget {
+class _MenuTile extends StatefulWidget {
   final IconData icon;
   final Color color;
   final String label;
@@ -241,26 +241,69 @@ class _MenuTile extends StatelessWidget {
   });
 
   @override
+  State<_MenuTile> createState() => _MenuTileState();
+}
+
+class _MenuTileState extends State<_MenuTile> with SingleTickerProviderStateMixin {
+  late final AnimationController _float = AnimationController(
+    vsync: this,
+    duration: Duration(milliseconds: 1800 + widget.order * 220),
+  );
+  bool _pressed = false;
+
+  @override
+  void dispose() {
+    _float.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final animate = context.watch<AppSettingsService>().animationsEnabled;
-    final tile = _buildTile();
+    if (animate) {
+      if (!_float.isAnimating) _float.repeat(reverse: true);
+    } else {
+      if (_float.isAnimating) _float.stop();
+    }
+
+    final tile = AnimatedScale(
+      scale: _pressed && animate ? 0.95 : 1.0,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: _buildTile(animate),
+    );
     if (!animate) return tile;
-    // Пайдошавии нарм: ҳар плитка бо таъхири андак аз поён мебарояд.
+    // Пайдошавӣ: ҳар плитка бо таъхир аз поён баромада меояд.
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 420 + order * 90),
-      curve: Curves.easeOutCubic,
+      duration: Duration(milliseconds: 500 + widget.order * 120),
+      curve: Curves.easeOutBack,
       builder: (context, v, child) => Opacity(
-        opacity: v,
-        child: Transform.translate(offset: Offset(0, 18 * (1 - v)), child: child),
+        opacity: v.clamp(0.0, 1.0),
+        child: Transform.translate(offset: Offset(0, 40 * (1 - v)), child: child),
       ),
       child: tile,
     );
   }
 
-  Widget _buildTile() {
+  Widget _buildTile(bool animate) {
+    // Иконка оҳиста боло-поён мепарад.
+    Widget badge(double size) {
+      final b = _IconBadge(icon: widget.icon, color: widget.color, size: size);
+      if (!animate) return b;
+      return AnimatedBuilder(
+        animation: _float,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(0, -4 * Curves.easeInOut.transform(_float.value)),
+          child: child,
+        ),
+        child: b,
+      );
+    }
+
     return InkWell(
-      onTap: onTap,
+      onTap: widget.onTap,
+      onHighlightChanged: (v) => setState(() => _pressed = v),
       borderRadius: BorderRadius.circular(22),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -272,21 +315,23 @@ class _MenuTile extends StatelessWidget {
             BoxShadow(color: _kPrimary.withOpacity(0.10), blurRadius: 18, offset: const Offset(0, 6)),
           ],
         ),
-        child: fullWidth
+        child: widget.fullWidth
             ? Row(
                 children: [
-                  _IconBadge(icon: icon, color: color, size: 38),
+                  badge(38),
                   const SizedBox(width: 12),
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0B3D91))),
+                  Text(widget.label,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0B3D91))),
                 ],
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _IconBadge(icon: icon, color: color, size: 44),
+                  badge(44),
                   const SizedBox(height: 12),
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF0B3D91))),
+                  Text(widget.label,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF0B3D91))),
                 ],
               ),
       ),
