@@ -9,7 +9,7 @@ import '../services/whatsapp_share.dart';
 import 'edit_property_screen.dart';
 import 'photo_gallery_screen.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 /// Саҳифаи пурраи деталии хона.
 class PropertyDetailScreen extends StatefulWidget {
@@ -69,7 +69,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final property = widget.property;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -126,8 +126,15 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(12, 12, 12, 24),
               padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.72),
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: const Color(0xCCFFFFFF)),
+                boxShadow: [BoxShadow(color: _kPrimary.withOpacity(0.08), blurRadius: 18, offset: const Offset(0, 6))],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -226,7 +233,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     children: [
                       const CircleAvatar(
                         radius: 20,
-                        backgroundColor: Color(0xFFEFF3F1),
+                        backgroundColor: Color(0xFFE3EFFB),
                         child: Icon(Icons.person_outline, color: _kPrimary),
                       ),
                       const SizedBox(width: 12),
@@ -333,7 +340,7 @@ class _DetailGrid extends StatelessWidget {
       children: items
           .map((item) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: const Color(0xFFF6F8F7), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(color: const Color(0xB8FFFFFF), borderRadius: BorderRadius.circular(12)),
                 child: Row(
                   children: [
                     Icon(item.icon, size: 18, color: _kPrimary),

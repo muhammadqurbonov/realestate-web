@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/locale_service.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 /// Ширкати ягона, ки ин барнома барояш сохта шудааст. Азбаски ҳозир
 /// танҳо як ширкат аз ин барнома истифода мебарад, рамзи ширкатро аз

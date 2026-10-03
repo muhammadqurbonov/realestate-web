@@ -6,7 +6,7 @@ import '../services/locale_service.dart';
 import '../l10n/app_strings.dart';
 import '../models/app_user.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 class TeamScreen extends StatelessWidget {
   const TeamScreen({super.key});
@@ -49,7 +49,7 @@ class TeamScreen extends StatelessWidget {
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.grey.shade200)),
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.72), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xCCFFFFFF))),
                 child: Row(
                   children: [
                     CircleAvatar(

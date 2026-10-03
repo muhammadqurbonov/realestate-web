@@ -9,7 +9,7 @@ import '../l10n/app_strings.dart';
 import '../models/property.dart';
 import '../models/app_user.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 class EditPropertyScreen extends StatefulWidget {
   final Property property;

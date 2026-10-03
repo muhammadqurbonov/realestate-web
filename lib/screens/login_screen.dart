@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/locale_service.dart';
 import 'register_screen.dart';
+import '../widgets/glass_card.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
-const _kPrimaryDark = Color(0xFF0A4A40);
+const _kPrimary = Color(0xFF1E6FD9);
+const _kPrimaryDark = Color(0xFF0B3D91);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -74,15 +75,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final t = context.watch<LocaleService>().strings;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [_kPrimary, _kPrimaryDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [_kPrimary, _kPrimaryDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(36)),
+                boxShadow: [BoxShadow(color: _kPrimary.withOpacity(0.25), blurRadius: 24, offset: const Offset(0, 10))],
               ),
               child: Column(
                 children: [
@@ -100,8 +103,12 @@ class _LoginScreenState extends State<LoginScreen> {
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(28),
-                  child: Column(
+                  padding: const EdgeInsets.all(20),
+                  child: GlassCard(
+                    blur: true,
+                    radius: 26,
+                    padding: const EdgeInsets.all(22),
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -146,6 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(t.t('no_account_register')),
                       ),
                     ],
+                  ),
                   ),
                 ),
               ),

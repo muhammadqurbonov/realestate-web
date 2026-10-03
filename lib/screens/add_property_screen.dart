@@ -9,7 +9,7 @@ import '../services/storage_service.dart';
 import '../models/property.dart';
 import '../l10n/app_strings.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 /// Иловаи хона — раванди қадам ба қадам (як савол дар як саҳифа),
 /// мисли боти GreenHomeTaj.
@@ -222,7 +222,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       ),
       body: Column(
         children: [
-          LinearProgressIndicator(value: progress, backgroundColor: Colors.grey.shade200, color: _kPrimary, minHeight: 3),
+          LinearProgressIndicator(value: progress, backgroundColor: Colors.white.withOpacity(0.6), color: _kPrimary, minHeight: 3),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -435,9 +435,9 @@ class _ChoiceStep extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(0.72),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: const Color(0xCCFFFFFF)),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 3))],
                 ),
                 child: Row(
@@ -598,7 +598,7 @@ class _PhotosStep extends StatelessWidget {
                 width: 92,
                 height: 92,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300), color: Colors.white),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade300), color: Colors.white.withOpacity(0.72)),
                 child: Icon(Icons.add_a_photo_outlined, color: Colors.grey[600]),
               ),
             ),
@@ -681,7 +681,7 @@ class _RadioCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: selected ? _kPrimary.withOpacity(0.08) : Colors.white,
+          color: selected ? _kPrimary.withOpacity(0.08) : Colors.white.withOpacity(0.72),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: selected ? _kPrimary : Colors.grey.shade300, width: selected ? 1.5 : 1),
         ),

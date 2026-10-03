@@ -9,7 +9,7 @@ import '../models/app_user.dart';
 import '../widgets/property_card.dart';
 import '../l10n/app_strings.dart'; // ← ин ҷо илова шуд
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 class ClientsScreen extends StatelessWidget {
   const ClientsScreen({super.key});
@@ -109,9 +109,9 @@ class _ClientTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.72),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xCCFFFFFF)),
       ),
       child: ExpansionTile(
         shape: const Border(),

@@ -6,8 +6,8 @@ import '../services/whatsapp_share.dart';
 import '../l10n/app_strings.dart';
 import '../screens/property_detail_screen.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
-const _kPrimaryDark = Color(0xFF0A4A40);
+const _kPrimary = Color(0xFF1E6FD9);
+const _kPrimaryDark = Color(0xFF0B3D91);
 
 /// Корти хулосавии хона — дар "Хонаҳои ман" ва "Ҳамаи хонаҳо" истифода
 /// мешавад. Зер кардан ба саҳифаи пурраи детали мебарад.
@@ -60,9 +60,9 @@ class PropertyCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withOpacity(0.72),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: const Color(0xCCFFFFFF)),
           boxShadow: [
             BoxShadow(color: Colors.black.withOpacity(0.045), blurRadius: 16, offset: const Offset(0, 6)),
           ],
@@ -85,12 +85,12 @@ class PropertyCard extends StatelessWidget {
                             height: 150,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFFE7F0ED), Color(0xFFF3F7F5)],
+                                colors: [Color(0xFFDCEBFA), Color(0xFFEEF6FD)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                             ),
-                            child: const Icon(Icons.home_rounded, size: 40, color: Color(0xFFB4C2BD)),
+                            child: const Icon(Icons.home_rounded, size: 40, color: Color(0xFFA9C2DB)),
                           ),
                   ),
                 ),

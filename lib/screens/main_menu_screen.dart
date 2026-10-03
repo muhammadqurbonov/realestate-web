@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/locale_service.dart';
+import '../services/app_settings_service.dart';
 import '../services/auth_service.dart';
 import '../services/firestore_service.dart';
 import '../services/notification_seen_service.dart';
@@ -15,7 +16,7 @@ import 'settings_screen.dart';
 import 'notifications_screen.dart';
 import 'manager_properties_screen.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -55,14 +56,15 @@ class MainMenuScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [_kPrimary, Color(0xFF0A4A40)],
+                    colors: [_kPrimary, Color(0xFF0B3D91)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [BoxShadow(color: _kPrimary.withOpacity(0.28), blurRadius: 20, offset: const Offset(0, 8))],
                 ),
                 child: Row(
                   children: [
@@ -94,12 +96,13 @@ class MainMenuScreen extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 14,
                 crossAxisSpacing: 14,
-                childAspectRatio: 1.25,
+                childAspectRatio: 1.2,
                 children: [
                   _MenuTile(
                     icon: Icons.add_home_work_rounded,
-                    color: const Color(0xFF0F6B5C),
+                    color: const Color(0xFF1E6FD9),
                     label: t.t('add_property'),
+                    order: 0,
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const AddPropertyScreen())),
                   ),
@@ -107,6 +110,7 @@ class MainMenuScreen extends StatelessWidget {
                     icon: Icons.home_rounded,
                     color: const Color(0xFF2F6FED),
                     label: t.t('my_properties'),
+                    order: 1,
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const MyPropertiesScreen())),
                   ),
@@ -114,6 +118,7 @@ class MainMenuScreen extends StatelessWidget {
                     icon: Icons.apartment_rounded,
                     color: const Color(0xFFB6852C),
                     label: t.t('all_properties'),
+                    order: 2,
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const AllPropertiesScreen())),
                   ),
@@ -121,13 +126,15 @@ class MainMenuScreen extends StatelessWidget {
                     icon: Icons.people_alt_rounded,
                     color: const Color(0xFF9B3FBF),
                     label: t.t('clients'),
+                    order: 3,
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const ClientsScreen())),
                   ),
                   _MenuTile(
                     icon: Icons.badge_rounded,
-                    color: const Color(0xFF2F9E82),
+                    color: const Color(0xFF14A0C8),
                     label: t.t('manager_properties_title'),
+                    order: 4,
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const ManagerPropertiesScreen())),
                   ),
@@ -139,6 +146,7 @@ class MainMenuScreen extends StatelessWidget {
               icon: Icons.settings_rounded,
               color: Colors.grey.shade700,
               label: t.t('settings'),
+              order: 5,
               fullWidth: true,
               onTap: () => Navigator.push(
                   context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
@@ -221,6 +229,7 @@ class _MenuTile extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool fullWidth;
+  final int order;
 
   const _MenuTile({
     required this.icon,
@@ -228,21 +237,39 @@ class _MenuTile extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.fullWidth = false,
+    this.order = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final animate = context.watch<AppSettingsService>().animationsEnabled;
+    final tile = _buildTile();
+    if (!animate) return tile;
+    // Пайдошавии нарм: ҳар плитка бо таъхири андак аз поён мебарояд.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 420 + order * 90),
+      curve: Curves.easeOutCubic,
+      builder: (context, v, child) => Opacity(
+        opacity: v,
+        child: Transform.translate(offset: Offset(0, 18 * (1 - v)), child: child),
+      ),
+      child: tile,
+    );
+  }
+
+  Widget _buildTile() {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(22),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.grey.shade200),
+          color: Colors.white.withOpacity(0.72),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xCCFFFFFF)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 12, offset: const Offset(0, 4)),
+            BoxShadow(color: _kPrimary.withOpacity(0.10), blurRadius: 18, offset: const Offset(0, 6)),
           ],
         ),
         child: fullWidth
@@ -250,7 +277,7 @@ class _MenuTile extends StatelessWidget {
                 children: [
                   _IconBadge(icon: icon, color: color, size: 38),
                   const SizedBox(width: 12),
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0B3D91))),
                 ],
               )
             : Column(
@@ -259,7 +286,7 @@ class _MenuTile extends StatelessWidget {
                 children: [
                   _IconBadge(icon: icon, color: color, size: 44),
                   const SizedBox(height: 12),
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF0B3D91))),
                 ],
               ),
       ),
@@ -292,9 +319,9 @@ class _LanguageSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade300),
+        color: Colors.white.withOpacity(0.72),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xCCFFFFFF)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: DropdownButton<AppLocale>(

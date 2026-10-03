@@ -7,7 +7,7 @@ import '../models/property.dart';
 import '../widgets/property_card.dart';
 import '../l10n/app_strings.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 class AllPropertiesScreen extends StatefulWidget {
   const AllPropertiesScreen({super.key});
@@ -117,7 +117,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: _hasActiveFilters ? _kPrimary : Colors.white,
+                      color: _hasActiveFilters ? _kPrimary : Colors.white.withOpacity(0.72),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: _hasActiveFilters ? _kPrimary : Colors.grey.shade300),
                     ),

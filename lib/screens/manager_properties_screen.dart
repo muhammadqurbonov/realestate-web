@@ -8,7 +8,7 @@ import '../models/property.dart';
 import '../widgets/property_card.dart';
 import '../l10n/app_strings.dart';
 
-const _kPrimary = Color(0xFF0F6B5C);
+const _kPrimary = Color(0xFF1E6FD9);
 
 /// Рӯйхати менеҷерон — зер кардани яке хонаҳои ҳамон менеҷерро
 /// нишон медиҳад.
@@ -50,9 +50,9 @@ class ManagerPropertiesScreen extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.72),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: const Color(0xCCFFFFFF)),
                   ),
                   child: Row(
                     children: [
