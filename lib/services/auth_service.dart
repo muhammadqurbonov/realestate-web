@@ -38,16 +38,66 @@ class AuthService extends ChangeNotifier {
       await _auth.signInWithEmailAndPassword(email: email.trim(), password: password);
       return null;
     } on FirebaseAuthException catch (e) {
-      return e.message ?? 'Хатои воридшавӣ';
+      return _authError(e);
+    }
+  }
+
+  /// Email-и ҳисоби Firebase Auth (на нусхаи Firestore) — линки барқарорсозӣ
+  /// маҳз ба ҳамин суроға меравад.
+  String? get authEmail => _auth.currentUser?.email;
+
+  /// Хатои Firebase-ро бо матни фаҳмо ва рамзи хато бармегардонад.
+  String _authError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'Email нодуруст навишта шудааст';
+      case 'user-not-found':
+        return 'Корбар бо ин email ёфт нашуд';
+      case 'too-many-requests':
+        return 'Дархостҳо аз ҳад зиёданд. Якчанд дақиқа интизор шавед ва боз кӯшиш кунед';
+      case 'network-request-failed':
+        return 'Пайвастшавӣ ба интернет нест';
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Рамзи ҷорӣ нодуруст аст';
+      case 'weak-password':
+        return 'Рамзи нав хеле суст аст (камаш 6 аломат)';
+      case 'requires-recent-login':
+        return 'Барои амният аз ҳисоб баромада, дубора ворид шавед';
+      default:
+        return '${e.message ?? 'Хатои номаълум'} (${e.code})';
     }
   }
 
   Future<String?> sendPasswordResetEmail(String email) async {
+    final address = email.trim();
+    if (address.isEmpty) return 'Email-ро нависед';
     try {
-      await _auth.sendPasswordResetEmail(email: email.trim());
+      await _auth.sendPasswordResetEmail(email: address);
       return null;
     } on FirebaseAuthException catch (e) {
-      return e.message ?? 'Хатои фиристодани паём';
+      debugPrint('sendPasswordResetEmail failed: ${e.code} ${e.message}');
+      return _authError(e);
+    } catch (e) {
+      debugPrint('sendPasswordResetEmail failed: $e');
+      return 'Хатои фиристодани паём: $e';
+    }
+  }
+
+  /// Иваз кардани рамз бе email: аввал рамзи ҷорӣ тасдиқ мешавад.
+  Future<String?> changePassword(String currentPassword, String newPassword) async {
+    final user = _auth.currentUser;
+    final email = user?.email;
+    if (user == null || email == null) return 'Корбар ворид нашудааст';
+    try {
+      final cred = EmailAuthProvider.credential(email: email, password: currentPassword);
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPassword);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return _authError(e);
+    } catch (e) {
+      return e.toString();
     }
   }
 

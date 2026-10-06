@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/property.dart';
 import '../models/client.dart';
 import '../models/app_user.dart';
@@ -22,14 +23,21 @@ class FirestoreService {
     await docRef.set(property.toMap());
     await docRef.collection('private').doc('contact').set(privateInfo.toMap());
 
-    await _notifications.add(AppNotification(
-      id: '',
-      companyId: property.companyId,
-      propertyId: docRef.id,
-      address: property.address,
-      managerName: property.addedByName,
-      createdAt: DateTime.now(),
-    ).toMap());
+    // Хатои огоҳинома набояд сабти хонаро вайрон кунад.
+    try {
+      await _notifications.add(AppNotification(
+        id: '',
+        companyId: property.companyId,
+        propertyId: docRef.id,
+        address: property.address,
+        managerName: property.addedByName,
+        addedByUid: property.addedByUid,
+        type: kNotifNewProperty,
+        createdAt: DateTime.now(),
+      ).toMap());
+    } catch (e) {
+      debugPrint('Notification write failed: $e');
+    }
 
     return docRef.id;
   }
@@ -129,12 +137,7 @@ class FirestoreService {
     final all = snap.docs
         .map((d) => Property.fromMap(d.id, d.data() as Map<String, dynamic>))
         .toList();
-    return all.where((p) {
-      final roomsOk = p.category != ListingCategory.apartment ||
-          (p.rooms >= client.minRooms && p.rooms <= client.maxRooms);
-      final budgetOk = p.price >= client.minBudget && p.price <= client.maxBudget;
-      return roomsOk && budgetOk;
-    }).toList();
+    return all.where(client.matches).toList();
   }
 
   // ---------- Идораи кормандон ----------
@@ -155,14 +158,23 @@ class FirestoreService {
 
   /// 50-тои охирини огоҳиномаҳои ширкат — "фалон менеҷер хонаи нав
   /// илова кард".
+  ///
+  /// Мураттабсозӣ дар КЛИЕНТ иҷро мешавад (бе индекси таркибӣ дар Firestore).
   Stream<List<AppNotification>> companyNotifications(String companyId) {
-    return _notifications
-        .where('companyId', isEqualTo: companyId)
-        .orderBy('createdAt', descending: true)
-        .limit(50)
-        .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => AppNotification.fromMap(d.id, d.data() as Map<String, dynamic>))
-            .toList());
+    return _notifications.where('companyId', isEqualTo: companyId).snapshots().map((snap) {
+      final list = snap.docs
+          .map((d) => AppNotification.fromMap(d.id, d.data() as Map<String, dynamic>))
+          .toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list.take(50).toList();
+    });
+  }
+
+  /// Хонаҳои дар [window] охир илова шуда — барои мувофиқасозии муштариён.
+  Stream<List<Property>> recentProperties(Duration window) {
+    final since = DateTime.now().subtract(window).millisecondsSinceEpoch;
+    return _properties.where('createdAt', isGreaterThan: since).snapshots().map((snap) => snap.docs
+        .map((d) => Property.fromMap(d.id, d.data() as Map<String, dynamic>))
+        .toList());
   }
 }

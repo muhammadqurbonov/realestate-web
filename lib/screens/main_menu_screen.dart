@@ -3,11 +3,9 @@ import 'package:provider/provider.dart';
 import '../services/locale_service.dart';
 import '../services/app_settings_service.dart';
 import '../services/auth_service.dart';
-import '../services/firestore_service.dart';
-import '../services/notification_seen_service.dart';
+import '../services/notification_center.dart';
 import '../l10n/app_strings.dart';
 import '../models/app_user.dart';
-import '../models/app_notification.dart';
 import 'add_property_screen.dart';
 import 'my_properties_screen.dart';
 import 'all_properties_screen.dart';
@@ -42,7 +40,7 @@ class MainMenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(t.t('menu_title')),
         actions: [
-          if (user != null) _NotificationBell(companyId: user.companyId),
+          if (user != null) const _NotificationBell(),
           const SizedBox(width: 4),
           _LanguageSwitch(localeService: localeService),
           const SizedBox(width: 12),
@@ -159,66 +157,38 @@ class MainMenuScreen extends StatelessWidget {
 }
 
 /// Иконаи зангӯла бо тегчаи шумораи огоҳиномаҳои надида.
-class _NotificationBell extends StatefulWidget {
-  final String companyId;
-  const _NotificationBell({required this.companyId});
-
-  @override
-  State<_NotificationBell> createState() => _NotificationBellState();
-}
-
-class _NotificationBellState extends State<_NotificationBell> {
-  Future<DateTime>? _lastSeenFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _lastSeenFuture = NotificationSeenService().getLastSeen();
-  }
-
-  Future<void> _open() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
-    // Пас аз баргаштан, "дидашуд" нав шудааст — тегчаро нав мекунем.
-    setState(() => _lastSeenFuture = NotificationSeenService().getLastSeen());
-  }
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell();
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DateTime>(
-      future: _lastSeenFuture,
-      builder: (context, lastSeenSnap) {
-        final lastSeen = lastSeenSnap.data ?? DateTime.fromMillisecondsSinceEpoch(0);
-        return StreamBuilder<List<AppNotification>>(
-          stream: FirestoreService().companyNotifications(widget.companyId),
-          builder: (context, snap) {
-            final unread = (snap.data ?? [])
-                .where((n) => n.createdAt.isAfter(lastSeen))
-                .length;
-            return Stack(
-              clipBehavior: Clip.none,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined),
-                  onPressed: _open,
+    final unread = context.watch<NotificationCenter>().unreadCount;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
+        ),
+        if (unread > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: IgnorePointer(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
+                child: Text(
+                  unread > 9 ? '9+' : '$unread',
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
                 ),
-                if (unread > 0)
-                  Positioned(
-                    right: 6,
-                    top: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                      decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
-                      child: Text(
-                        unread > 9 ? '9+' : '$unread',
-                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
-        );
-      },
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

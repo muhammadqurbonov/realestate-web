@@ -8,6 +8,7 @@ import '../l10n/app_strings.dart';
 import '../models/app_user.dart';
 import '../theme/app_colors.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/password_dialogs.dart';
 import 'team_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -32,9 +33,20 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _sendReset(BuildContext context, AppUser user, AppStrings t) async {
     final auth = context.read<AuthService>();
-    final error = await auth.sendPasswordResetEmail(user.email);
+    // Линк ба email-и ҳисоби Firebase Auth меравад (на нусхаи Firestore).
+    final email = auth.authEmail ?? user.email;
+    final error = await auth.sendPasswordResetEmail(email);
     if (!context.mounted) return;
-    _toast(context, error ?? t.t('reset_password_sent'));
+    if (error != null) {
+      _toast(context, error);
+    } else {
+      await showResetSentDialog(context, t, email);
+    }
+  }
+
+  Future<void> _changePassword(BuildContext context, AppStrings t) async {
+    final ok = await showDialog<bool>(context: context, builder: (_) => ChangePasswordDialog(t: t));
+    if (ok == true && context.mounted) _toast(context, t.t('password_changed'));
   }
 
   Future<void> _confirmLogout(BuildContext context, AppStrings t) async {
@@ -190,11 +202,22 @@ class SettingsScreen extends StatelessWidget {
           if (user != null) ...[
             _SectionTitle(t.t('account')),
             GlassCard(
-              child: ListTile(
-                leading: const Icon(Icons.lock_reset_rounded, color: AppColors.primary),
-                title: Text(t.t('change_password'), style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text(t.t('change_password_desc'), style: const TextStyle(fontSize: 12)),
-                onTap: () => _sendReset(context, user, t),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.lock_outline_rounded, color: AppColors.primary),
+                    title: Text(t.t('change_password'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => _changePassword(context, t),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.mark_email_unread_outlined, color: AppColors.primary),
+                    title: Text(t.t('send_reset_link'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(t.t('change_password_desc'), style: const TextStyle(fontSize: 12)),
+                    onTap: () => _sendReset(context, user, t),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),

@@ -1,3 +1,5 @@
+import 'property.dart';
+
 /// Талаботи муштарӣ — барои мувофиқасозии худкор бо properties.
 class Client {
   final String id;
@@ -27,6 +29,14 @@ class Client {
     required this.preferredArea,
     required this.createdAt,
   });
+
+  /// Оё ин хона ба талаботи муштарӣ мувофиқ аст (ҳуҷраҳо + буҷа).
+  bool matches(Property p) {
+    final roomsOk = p.category != ListingCategory.apartment ||
+        (p.rooms >= minRooms && p.rooms <= maxRooms);
+    final budgetOk = p.price >= minBudget && p.price <= maxBudget;
+    return roomsOk && budgetOk;
+  }
 
   factory Client.fromMap(String id, Map<String, dynamic> map) {
     return Client(

@@ -6,6 +6,11 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/locale_service.dart';
 import 'services/app_settings_service.dart';
+import 'services/notification_center.dart';
+import 'services/app_keys.dart';
+import 'l10n/app_strings.dart';
+import 'models/app_notification.dart';
+import 'screens/notifications_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'theme/app_colors.dart';
@@ -55,6 +60,28 @@ class _AppRootState extends State<AppRoot> {
     super.initState();
     _localeService.load();
     _settingsService.load();
+  }
+
+  /// Вақте огоҳии нав меояд (барнома кушода аст) — SnackBar нишон медиҳем.
+  void _showIncoming(AppNotification n, int more) {
+    final messenger = rootMessengerKey.currentState;
+    if (messenger == null) return;
+    final isRu = _localeService.locale == AppLocale.ru;
+    var text = n.message(isRu);
+    if (more > 0) text += isRu ? '\n+ ещё $more' : '\n+ боз $more огоҳинома';
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(text, maxLines: 4, overflow: TextOverflow.ellipsis),
+        duration: const Duration(seconds: 7),
+        action: SnackBarAction(
+          label: isRu ? 'Открыть' : 'Кушодан',
+          textColor: Colors.white,
+          onPressed: () => rootNavigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
+        ),
+      ));
   }
 
   ThemeData _buildTheme() {
@@ -137,11 +164,21 @@ class _AppRootState extends State<AppRoot> {
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider.value(value: _localeService),
         ChangeNotifierProvider.value(value: _settingsService),
+        ChangeNotifierProxyProvider<AuthService, NotificationCenter>(
+          create: (_) => NotificationCenter(),
+          update: (_, auth, center) {
+            center!.onIncoming = _showIncoming;
+            center.attach(auth.currentUser);
+            return center;
+          },
+        ),
       ],
       child: Consumer<AppSettingsService>(
         builder: (context, settings, _) => MaterialApp(
           title: 'Green Home',
           debugShowCheckedModeBanner: false,
+          navigatorKey: rootNavigatorKey,
+          scaffoldMessengerKey: rootMessengerKey,
           theme: _buildTheme(),
           builder: (context, child) {
             final mq = MediaQuery.of(context);

@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../services/locale_service.dart';
 import 'register_screen.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/password_dialogs.dart';
 
 const _kPrimary = Color(0xFF1E6FD9);
 const _kPrimaryDark = Color(0xFF0B3D91);
@@ -65,8 +66,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result != null && result.isNotEmpty && mounted) {
       final auth = context.read<AuthService>();
       final error = await auth.sendPasswordResetEmail(result);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error ?? t.t('reset_password_sent'))));
+      if (!mounted) return;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error), duration: const Duration(seconds: 8)));
+      } else {
+        await showResetSentDialog(context, t, result);
       }
     }
   }

@@ -30,8 +30,8 @@ class AppStrings {
       AppLocale.ru: 'Введите email — ссылка для восстановления будет отправлена',
     },
     'reset_password_sent': {
-      AppLocale.tj: 'Паём фиристода шуд — почтаи худро санҷед',
-      AppLocale.ru: 'Письмо отправлено — проверьте почту',
+      AppLocale.tj: 'Паём фиристода шуд. Папкаи «Спам»-ро низ санҷед.',
+      AppLocale.ru: 'Письмо отправлено. Проверьте также папку «Спам».',
     },
     'send': {AppLocale.tj: 'Фиристодан', AppLocale.ru: 'Отправить'},
     'no_account_register': {AppLocale.tj: 'Ҳисоб надоред? Сабти ном', AppLocale.ru: 'Нет аккаунта? Регистрация'},
@@ -211,6 +211,18 @@ class AppStrings {
     },
     'logout_confirm': {AppLocale.tj: 'Аз ҳисоб баромада истодаед?', AppLocale.ru: 'Выйти из аккаунта?'},
     'confirm_yes': {AppLocale.tj: 'Ҳа', AppLocale.ru: 'Да'},
+    'send_reset_link': {AppLocale.tj: 'Линки барқарорсозӣ ба email', AppLocale.ru: 'Ссылка для сброса на email'},
+    'current_password': {AppLocale.tj: 'Рамзи ҷорӣ', AppLocale.ru: 'Текущий пароль'},
+    'new_password': {AppLocale.tj: 'Рамзи нав', AppLocale.ru: 'Новый пароль'},
+    'repeat_password': {AppLocale.tj: 'Рамзи навро такрор кунед', AppLocale.ru: 'Повторите новый пароль'},
+    'password_changed': {AppLocale.tj: 'Рамз иваз шуд', AppLocale.ru: 'Пароль изменён'},
+    'passwords_dont_match': {AppLocale.tj: 'Рамзҳо баробар нестанд', AppLocale.ru: 'Пароли не совпадают'},
+    'password_too_short': {AppLocale.tj: 'Рамз камаш 6 аломат бошад', AppLocale.ru: 'Пароль — минимум 6 символов'},
+    'reset_sent_title': {AppLocale.tj: 'Паём фиристода шуд', AppLocale.ru: 'Письмо отправлено'},
+    'reset_sent_hint': {
+      AppLocale.tj: 'Агар паём дар «Ворид шуда»-ҳо набошад, папкаҳои «Спам» ва «Промоакцияҳо»-ро санҷед. Расидани он то 5 дақиқа метавонад тӯл кашад.',
+      AppLocale.ru: 'Если письма нет во «Входящих», проверьте папки «Спам» и «Промоакции». Доставка может занять до 5 минут.',
+    },
     'show_sold': {AppLocale.tj: 'Хонаҳои фурӯхташударо нишон диҳед', AppLocale.ru: 'Показывать проданные'},
   };
 
