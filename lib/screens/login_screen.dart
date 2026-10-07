@@ -5,6 +5,7 @@ import '../services/locale_service.dart';
 import 'register_screen.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/password_dialogs.dart';
+import '../widgets/app_logo.dart';
 
 const _kPrimary = Color(0xFF1E6FD9);
 const _kPrimaryDark = Color(0xFF0B3D91);
@@ -93,12 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: Column(
                 children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-                    child: const Icon(Icons.apartment_rounded, color: Colors.white, size: 36),
-                  ),
+                  const AppLogo(size: 120),
                   const SizedBox(height: 16),
                   Text(t.t('menu_title'), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
                 ],

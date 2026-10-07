@@ -4,6 +4,7 @@ import '../services/locale_service.dart';
 import '../services/app_settings_service.dart';
 import '../services/auth_service.dart';
 import '../services/notification_center.dart';
+import '../widgets/app_logo.dart';
 import '../l10n/app_strings.dart';
 import '../models/app_user.dart';
 import 'add_property_screen.dart';
@@ -38,7 +39,14 @@ class MainMenuScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.t('menu_title')),
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            const AppLogo(size: 38, border: false),
+            const SizedBox(width: 10),
+            Flexible(child: Text(t.t('menu_title'), overflow: TextOverflow.ellipsis)),
+          ],
+        ),
         actions: [
           if (user != null) const _NotificationBell(),
           const SizedBox(width: 4),

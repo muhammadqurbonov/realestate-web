@@ -15,6 +15,7 @@ import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'theme/app_colors.dart';
 import 'widgets/app_background.dart';
+import 'widgets/app_logo.dart';
 
 const _kPrimary = AppColors.primary;
 const _kPrimaryDark = AppColors.primaryDark;
@@ -175,7 +176,7 @@ class _AppRootState extends State<AppRoot> {
       ],
       child: Consumer<AppSettingsService>(
         builder: (context, settings, _) => MaterialApp(
-          title: 'Green Home',
+          title: 'Green Home Taj',
           debugShowCheckedModeBanner: false,
           navigatorKey: rootNavigatorKey,
           scaffoldMessengerKey: rootMessengerKey,
@@ -201,7 +202,18 @@ class _RootGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthService>();
     if (auth.loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppLogo(size: 110),
+              SizedBox(height: 24),
+              SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3)),
+            ],
+          ),
+        ),
+      );
     }
     if (auth.currentUser == null) {
       return const LoginScreen();

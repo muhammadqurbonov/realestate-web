@@ -9,6 +9,7 @@ import '../models/app_user.dart';
 import '../theme/app_colors.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/password_dialogs.dart';
+import '../widgets/app_logo.dart';
 import 'team_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -270,8 +271,8 @@ class SettingsScreen extends StatelessWidget {
           // ---------- Дар бораи барнома ----------
           GlassCard(
             child: ListTile(
-              leading: const Icon(Icons.info_outline_rounded, color: AppColors.primary),
-              title: Text('Green Home', style: const TextStyle(fontWeight: FontWeight.w700)),
+              leading: const AppLogo(size: 42, border: false),
+              title: const Text('Green Home Taj', style: TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Text(t.t('about_app_desc'), style: const TextStyle(fontSize: 12)),
             ),
           ),
