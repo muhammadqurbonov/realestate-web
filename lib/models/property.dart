@@ -87,6 +87,9 @@ class Property {
   final DateTime createdAt;
   final bool isSold;
 
+  /// Вақти фурӯхта шудан (барои статистика). Барои хонаҳои пештара null.
+  final DateTime? soldAt;
+
   final ListingCategory category;
   final HouseLandType? houseLandType;
 
@@ -118,6 +121,7 @@ class Property {
     required this.addedByPhone,
     required this.createdAt,
     this.isSold = false,
+    this.soldAt,
     required this.category,
     this.houseLandType,
     this.rooms = 0,
@@ -149,6 +153,7 @@ class Property {
         map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch,
       ),
       isSold: map['isSold'] ?? false,
+      soldAt: map['soldAt'] != null ? DateTime.fromMillisecondsSinceEpoch(map['soldAt']) : null,
       category: listingCategoryFromString(map['category'] ?? 'apartment'),
       houseLandType: map['houseLandType'] != null
           ? houseLandTypeFromString(map['houseLandType'])
@@ -180,6 +185,7 @@ class Property {
       'addedByPhone': addedByPhone,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'isSold': isSold,
+      'soldAt': soldAt?.millisecondsSinceEpoch,
       'category': listingCategoryToString(category),
       'houseLandType': houseLandType != null ? houseLandTypeToString(houseLandType!) : null,
       'rooms': rooms,

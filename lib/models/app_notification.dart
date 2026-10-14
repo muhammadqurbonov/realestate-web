@@ -2,6 +2,10 @@
 const String kNotifNewProperty = 'new_property';
 const String kNotifClientMatch = 'client_match';
 
+/// Танҳо барои админҳо: менеҷери нав интизори тасдиқ аст.
+/// (managerName — ном, address — телефон, propertyId/addedByUid — uid-и корбар)
+const String kNotifJoinRequest = 'join_request';
+
 class AppNotification {
   final String id;
   final String companyId;
@@ -33,9 +37,13 @@ class AppNotification {
   });
 
   bool get isClientMatch => type == kNotifClientMatch;
+  bool get isJoinRequest => type == kNotifJoinRequest;
 
   /// Сарлавҳаи кӯтоҳ.
   String title(bool isRu) {
+    if (isJoinRequest) {
+      return isRu ? '$managerName хочет войти в приложение' : '$managerName мехоҳад ба барнома дохил шавад';
+    }
     if (isClientMatch) {
       return isRu ? 'Подходит вашему клиенту «$clientName»' : 'Ба муштарии шумо «$clientName» мувофиқ аст';
     }
@@ -44,6 +52,11 @@ class AppNotification {
 
   /// Матни пурра (барои SnackBar).
   String message(bool isRu) {
+    if (isJoinRequest) {
+      return isRu
+          ? 'Новая заявка на вход: $managerName ($address)'
+          : 'Дархости нави воридшавӣ: $managerName ($address)';
+    }
     if (isClientMatch) {
       return isRu
           ? 'Новый объект подходит клиенту «$clientName»: $address (добавил(а) $managerName)'

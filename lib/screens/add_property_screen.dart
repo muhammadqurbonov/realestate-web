@@ -191,8 +191,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           await showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: const Text('Хона сабт шуд, вале аксҳо бор нашуданд'),
-              content: SingleChildScrollView(child: Text(uploadErrorDetail ?? 'Хатои номаълум')),
+              title: Text(t.t('upload_failed_title')),
+              content: SingleChildScrollView(child: Text(uploadErrorDetail ?? t.t('unknown_error'))),
               actions: [
                 TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
               ],

@@ -23,11 +23,13 @@ class NotificationCenter extends ChangeNotifier {
   StreamSubscription<List<AppNotification>>? _notifSub;
   StreamSubscription<List<Client>>? _clientSub;
   StreamSubscription<List<Property>>? _propSub;
+  StreamSubscription<List<AppUser>>? _pendingSub;
 
   List<AppNotification> _company = [];
   List<Client> _clients = [];
   List<Property> _props = [];
-  bool _gotNotif = false, _gotClients = false, _gotProps = false;
+  List<AppUser> _pendingUsers = [];
+  bool _gotNotif = false, _gotClients = false, _gotProps = false, _gotPending = false;
   bool _baselineDone = false;
 
   final Set<String> _known = {};
@@ -46,11 +48,18 @@ class NotificationCenter extends ChangeNotifier {
 
   List<AppNotification> get items => _items;
   DateTime get lastSeen => _lastSeen;
+  /// Шумораи менеҷерони интизори тасдиқ (танҳо барои админ/суперадмин).
+  int get pendingCount => _pendingUsers.length;
   int get unreadCount => _items.where((n) => n.createdAt.isAfter(_lastSeen)).length;
 
   /// Аз ProxyProvider даъват мешавад; агар корбар тағйир наёфта бошад, коре намекунад.
   void attach(AppUser? user) {
-    if (user?.uid == _user?.uid && user?.companyId == _user?.companyId) return;
+    if (user?.uid == _user?.uid &&
+        user?.companyId == _user?.companyId &&
+        user?.role == _user?.role &&
+        user?.approved == _user?.approved) {
+      return;
+    }
     _stop();
     _user = user;
     if (user == null) {
@@ -92,6 +101,20 @@ class NotificationCenter extends ChangeNotifier {
       _gotClients = true;
       _rebuild();
     });
+    if (user.canManageManagers) {
+      // Админ: менеҷерони тасдиқнашуда (дархостҳои воридшавӣ).
+      _pendingSub = _fs.companyUsers(user.companyId).listen((v) {
+        _pendingUsers = v.where((u) => !u.approved).toList();
+        _gotPending = true;
+        _rebuild();
+      }, onError: (Object e) {
+        debugPrint('Pending users stream error: $e');
+        _gotPending = true;
+        _rebuild();
+      });
+    } else {
+      _gotPending = true;
+    }
     _propSub = _fs.recentProperties(const Duration(days: 30)).listen((v) {
       _props = v;
       _gotProps = true;
@@ -107,7 +130,9 @@ class NotificationCenter extends ChangeNotifier {
     _notifSub?.cancel();
     _clientSub?.cancel();
     _propSub?.cancel();
-    _notifSub = _clientSub = _propSub = null;
+    _pendingSub?.cancel();
+    _notifSub = _clientSub = _propSub = _pendingSub = null;
+    _pendingUsers = [];
     _debounce?.cancel();
     _pending.clear();
     _known.clear();
@@ -115,7 +140,7 @@ class NotificationCenter extends ChangeNotifier {
     _clients = [];
     _props = [];
     _dismissed = {};
-    _gotNotif = _gotClients = _gotProps = false;
+    _gotNotif = _gotClients = _gotProps = _gotPending = false;
     _baselineDone = false;
   }
 
@@ -147,10 +172,21 @@ class NotificationCenter extends ChangeNotifier {
     }
 
     final generic = _company.where((n) => n.addedByUid != user.uid && !matchedPropIds.contains(n.propertyId));
-    final merged = [...matches, ...generic]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final joinRequests = _pendingUsers.map((u) => AppNotification(
+          id: 'join_${u.uid}',
+          companyId: u.companyId,
+          propertyId: u.uid,
+          address: u.phone,
+          managerName: u.fullName,
+          addedByUid: u.uid,
+          type: kNotifJoinRequest,
+          createdAt: u.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+        ));
+
+    final merged = [...joinRequests, ...matches, ...generic]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     _items = merged.where((n) => !_dismissed.contains(n.id)).take(100).toList();
 
-    if (_gotNotif && _gotClients && _gotProps) {
+    if (_gotNotif && _gotClients && _gotProps && _gotPending) {
       if (!_baselineDone) {
         // Аввалин боршавӣ — таърихро бе садо қабул мекунем.
         _known.addAll(_items.map((e) => e.id));

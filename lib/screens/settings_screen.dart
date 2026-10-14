@@ -18,7 +18,7 @@ class SettingsScreen extends StatelessWidget {
   String _roleLabel(AppStrings t, UserRole role) {
     switch (role) {
       case UserRole.superAdmin:
-        return t.t('superadmin_label');
+        return t.t('admin_label'); // суперадмин ҳам "Админ" нишон дода мешавад
       case UserRole.admin:
         return t.t('admin_label');
       case UserRole.manager:
@@ -357,7 +357,7 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'Ном')),
+            TextField(controller: _nameController, decoration: InputDecoration(labelText: t.t('name_label'))),
             const SizedBox(height: 8),
             TextField(controller: _phoneController, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: t.t('phone'))),
             const SizedBox(height: 8),
@@ -368,9 +368,9 @@ class _AddManagerDialogState extends State<_AddManagerDialog> {
               const SizedBox(height: 8),
               DropdownButtonFormField<UserRole>(
                 value: _role,
-                items: const [
-                  DropdownMenuItem(value: UserRole.manager, child: Text('Менеҷер')),
-                  DropdownMenuItem(value: UserRole.admin, child: Text('Админ')),
+                items: [
+                  DropdownMenuItem(value: UserRole.manager, child: Text(t.t('manager_label'))),
+                  DropdownMenuItem(value: UserRole.admin, child: Text(t.t('admin_label'))),
                 ],
                 onChanged: (v) => setState(() => _role = v!),
               ),

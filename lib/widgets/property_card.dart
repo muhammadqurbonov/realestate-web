@@ -30,7 +30,7 @@ class PropertyCard extends StatelessWidget {
     if (property.category == ListingCategory.apartment) {
       return '${property.rooms} ${t.t('property_rooms')} · ${property.area.toStringAsFixed(0)} м²';
     }
-    return '${property.houseFloorsCount}-ошёна · ${property.landSotka} сотих';
+    return '${property.houseFloorsCount} ${t.t('floors_suffix')} · ${property.landSotka} ${t.t('sotka_suffix')}';
   }
 
   String _formatDate(DateTime dt) {
@@ -42,7 +42,7 @@ class PropertyCard extends StatelessWidget {
   Future<void> _share(BuildContext context, AppStrings t) async {
     final ok = await shareToWhatsApp(property, t);
     if (!ok && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp кушода нашуд.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.t('whatsapp_failed'))));
     }
   }
 

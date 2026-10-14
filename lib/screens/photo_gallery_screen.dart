@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/locale_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/cloudinary_download.dart';
 
@@ -49,13 +51,13 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.download_outlined),
-            tooltip: 'Боргирии ин акс',
+            tooltip: context.read<LocaleService>().strings.t('download_photo'),
             onPressed: _downloadCurrent,
           ),
           if (widget.photoUrls.length > 1)
             IconButton(
               icon: const Icon(Icons.download_for_offline_outlined),
-              tooltip: 'Боргирии ҳамаи аксҳо',
+              tooltip: context.read<LocaleService>().strings.t('download_all_photos'),
               onPressed: _downloadAll,
             ),
         ],

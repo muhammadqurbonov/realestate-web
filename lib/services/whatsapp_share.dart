@@ -20,8 +20,8 @@ String buildWhatsAppMessage(Property p, AppStrings t) {
     buffer.writeln('🚪 ${p.rooms} ${t.t('property_rooms')}');
     if (p.totalFloors > 0) buffer.writeln('🏢 ${p.floor}/${p.totalFloors}');
   } else {
-    if (p.houseFloorsCount > 0) buffer.writeln('🏢 ${p.houseFloorsCount}-ошёна');
-    if (p.landSotka > 0) buffer.writeln('🌳 ${p.landSotka} сотих');
+    if (p.houseFloorsCount > 0) buffer.writeln('🏢 ${p.houseFloorsCount} ${t.t('floors_suffix')}');
+    if (p.landSotka > 0) buffer.writeln('🌳 ${p.landSotka} ${t.t('sotka_suffix')}');
   }
   if (p.area > 0) buffer.writeln('📐 ${p.area.toStringAsFixed(0)} м²');
 

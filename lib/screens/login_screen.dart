@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Бекор')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(t.t('cancel'))),
           ElevatedButton(onPressed: () => Navigator.pop(context, emailController.text.trim()), child: Text(t.t('send'))),
         ],
       ),

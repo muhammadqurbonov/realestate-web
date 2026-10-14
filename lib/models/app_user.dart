@@ -32,6 +32,13 @@ class AppUser {
   final UserRole role;
   final String companyId;
 
+  /// Менеҷери нав то тасдиқи админ "интизор" аст (approved=false).
+  /// Ҳуҷҷатҳои кӯҳна (бе ин майдон) ва ҳисобҳои админсохта — тасдиқшуда.
+  final bool approved;
+
+  /// Вақти сабти ном (барои огоҳӣ ба админ).
+  final DateTime? createdAt;
+
   AppUser({
     required this.uid,
     required this.fullName,
@@ -39,6 +46,8 @@ class AppUser {
     required this.email,
     required this.role,
     required this.companyId,
+    this.approved = true,
+    this.createdAt,
   });
 
   factory AppUser.fromMap(String uid, Map<String, dynamic> map) {
@@ -49,6 +58,8 @@ class AppUser {
       email: map['email'] ?? '',
       role: roleFromString(map['role'] ?? 'manager'),
       companyId: map['companyId'] ?? '',
+      approved: map['approved'] ?? true,
+      createdAt: map['createdAt'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createdAt']) : null,
     );
   }
 
@@ -59,9 +70,14 @@ class AppUser {
       'email': email,
       'role': roleToString(role),
       'companyId': companyId,
+      'approved': approved,
+      'createdAt': (createdAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
   bool get canManageManagers => role == UserRole.superAdmin || role == UserRole.admin;
   bool get canManageAdmins => role == UserRole.superAdmin;
+
+  /// Менеҷери тасдиқнашуда хона/муштарӣ илова карда наметавонад.
+  bool get isPending => !approved;
 }

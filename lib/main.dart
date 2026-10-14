@@ -59,6 +59,7 @@ class _AppRootState extends State<AppRoot> {
   @override
   void initState() {
     super.initState();
+    _localeService.addListener(() => AuthService.useRussian = _localeService.locale == AppLocale.ru);
     _localeService.load();
     _settingsService.load();
   }

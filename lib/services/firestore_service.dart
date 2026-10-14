@@ -91,8 +91,11 @@ class FirestoreService {
     await _properties.doc(propertyId).collection('private').doc('contact').set(privateInfo.toMap());
   }
 
-  Future<void> setSold(String propertyId, bool isSold) =>
-      _properties.doc(propertyId).update({'isSold': isSold});
+  /// Фурӯхта шуд / баргардонидан. Вақти фурӯш барои статистикаи дашборд сабт мешавад.
+  Future<void> setSold(String propertyId, bool isSold) => _properties.doc(propertyId).update({
+        'isSold': isSold,
+        'soldAt': isSold ? DateTime.now().millisecondsSinceEpoch : null,
+      });
 
   Future<void> deleteProperty(String propertyId) async {
     await _properties.doc(propertyId).collection('private').doc('contact').delete();

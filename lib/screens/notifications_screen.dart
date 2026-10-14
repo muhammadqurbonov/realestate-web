@@ -7,9 +7,11 @@ import '../services/notification_center.dart';
 import '../l10n/app_strings.dart';
 import '../models/app_notification.dart';
 import 'property_detail_screen.dart';
+import 'join_requests_screen.dart';
 
 const _kPrimary = Color(0xFF1E6FD9);
 const _kMatch = Color(0xFF12A36B);
+const _kJoin = Colors.orange;
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -40,6 +42,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _open(BuildContext context, AppNotification n) async {
+    if (n.isJoinRequest) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const JoinRequestsScreen()));
+      return;
+    }
     final user = context.read<AuthService>().currentUser;
     if (user == null) return;
     final property = await FirestoreService().getProperty(n.propertyId);
@@ -120,7 +126,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               itemBuilder: (context, index) {
                 final n = items[index];
                 final isNew = n.createdAt.isAfter(_openedLastSeen);
-                final accent = n.isClientMatch ? _kMatch : _kPrimary;
+                final accent = n.isJoinRequest ? _kJoin : (n.isClientMatch ? _kMatch : _kPrimary);
                 return Dismissible(
                   key: ValueKey(n.id),
                   direction: DismissDirection.endToStart,
@@ -152,7 +158,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             color: accent.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(n.isClientMatch ? Icons.person_search_rounded : Icons.home_rounded,
+                          child: Icon(
+                              n.isJoinRequest
+                                  ? Icons.person_add_alt_1_rounded
+                                  : (n.isClientMatch ? Icons.person_search_rounded : Icons.home_rounded),
                               color: accent, size: 20),
                         ),
                         const SizedBox(width: 12),
@@ -163,7 +172,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               Text(n.title(isRu),
                                   style: TextStyle(fontWeight: isNew ? FontWeight.w800 : FontWeight.w700, fontSize: 13.5)),
                               const SizedBox(height: 2),
-                              Text(n.address, style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                              Text(n.isJoinRequest ? (isRu ? 'Нажмите, чтобы принять или отклонить' : 'Зер кунед, то қабул ё рад кунед') : n.address,
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[700])),
                               if (n.isClientMatch)
                                 Text(
                                   (isRu ? 'Добавил(а): ' : 'Илова кард: ') + n.managerName,
@@ -175,7 +185,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(_timeAgo(n.createdAt, isRu),
+                            Text(n.createdAt.year < 2000 ? '' : _timeAgo(n.createdAt, isRu),
                                 style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                             if (isNew)
                               Container(

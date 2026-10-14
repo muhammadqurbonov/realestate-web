@@ -213,7 +213,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         final ok = await shareToWhatsApp(property, t);
                         if (!ok && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('WhatsApp кушода нашуд.')),
+                            SnackBar(content: Text(t.t('whatsapp_failed'))),
                           );
                         }
                       },
@@ -295,7 +295,7 @@ class _DetailGrid extends StatelessWidget {
       items.add(_GridItem(Icons.layers_outlined, t.t('floor_label'), '${property.floor}/${property.totalFloors}'));
     } else {
       items.add(_GridItem(Icons.layers_outlined, t.t('step_house_floors_title'), '${property.houseFloorsCount}'));
-      items.add(_GridItem(Icons.landscape_outlined, t.t('step_land_sotka_title'), '${property.landSotka} сотих'));
+      items.add(_GridItem(Icons.landscape_outlined, t.t('step_land_sotka_title'), '${property.landSotka} ${t.t('sotka_suffix')}'));
     }
     items.add(_GridItem(Icons.square_foot_outlined, 'м²', '${property.area.toStringAsFixed(0)} м²'));
     items.add(_GridItem(

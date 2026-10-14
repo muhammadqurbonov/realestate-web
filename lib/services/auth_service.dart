@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,29 +14,50 @@ class AuthService extends ChangeNotifier {
 
   AppUser? currentUser;
   bool loading = true;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userSub;
+
+  /// Забони матнҳои хато (аз main.dart ҳангоми иваз шудани забон навсозӣ мешавад).
+  static bool useRussian = false;
+  static String tr(String tj, String ru) => useRussian ? ru : tj;
 
   AuthService() {
     _auth.authStateChanges().listen(_onAuthChanged);
   }
 
-  Future<void> _onAuthChanged(User? firebaseUser) async {
+  /// Ҳуҷҷати корбарро зинда мешунавем: вақте админ менеҷерро тасдиқ мекунад
+  /// ё нақшро иваз мекунад, дар барнома фавран намоён мешавад.
+  void _onAuthChanged(User? firebaseUser) {
+    _userSub?.cancel();
+    _userSub = null;
     if (firebaseUser == null) {
       currentUser = null;
       loading = false;
       notifyListeners();
       return;
     }
-    final doc = await _db.collection('users').doc(firebaseUser.uid).get();
-    if (doc.exists) {
-      currentUser = AppUser.fromMap(firebaseUser.uid, doc.data()!);
-    }
-    loading = false;
-    notifyListeners();
+    _userSub = _db.collection('users').doc(firebaseUser.uid).snapshots().listen((doc) {
+      currentUser = doc.exists ? AppUser.fromMap(firebaseUser.uid, doc.data()!) : null;
+      loading = false;
+      notifyListeners();
+    }, onError: (Object e) {
+      debugPrint('User doc stream error: $e');
+      loading = false;
+      notifyListeners();
+    });
   }
 
   Future<String?> login(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email.trim(), password: password);
+      final cred = await _auth.signInWithEmailAndPassword(email: email.trim(), password: password);
+      final doc = await _db.collection('users').doc(cred.user!.uid).get();
+      if (!doc.exists) {
+        // Ҳуҷҷат нест — масалан, админ дархостро рад кардааст.
+        await _auth.signOut();
+        return tr(
+          'Ҳисоби шумо дар система нест ё рад карда шудааст. Бо админ тамос гиред.',
+          'Вашего аккаунта нет в системе или заявка отклонена. Свяжитесь с админом.',
+        );
+      }
       return null;
     } on FirebaseAuthException catch (e) {
       return _authError(e);
@@ -50,28 +72,32 @@ class AuthService extends ChangeNotifier {
   String _authError(FirebaseAuthException e) {
     switch (e.code) {
       case 'invalid-email':
-        return 'Email нодуруст навишта шудааст';
+        return tr('Email нодуруст навишта шудааст', 'Email указан неверно');
       case 'user-not-found':
-        return 'Корбар бо ин email ёфт нашуд';
+        return tr('Корбар бо ин email ёфт нашуд', 'Пользователь с таким email не найден');
+      case 'email-already-in-use':
+        return tr('Ин email аллакай сабт шудааст', 'Этот email уже зарегистрирован');
       case 'too-many-requests':
-        return 'Дархостҳо аз ҳад зиёданд. Якчанд дақиқа интизор шавед ва боз кӯшиш кунед';
+        return tr('Дархостҳо аз ҳад зиёданд. Якчанд дақиқа интизор шавед ва боз кӯшиш кунед',
+            'Слишком много запросов. Подождите несколько минут и повторите');
       case 'network-request-failed':
-        return 'Пайвастшавӣ ба интернет нест';
+        return tr('Пайвастшавӣ ба интернет нест', 'Нет подключения к интернету');
       case 'wrong-password':
       case 'invalid-credential':
-        return 'Рамзи ҷорӣ нодуруст аст';
+        return tr('Email ё рамз нодуруст аст', 'Неверный email или пароль');
       case 'weak-password':
-        return 'Рамзи нав хеле суст аст (камаш 6 аломат)';
+        return tr('Рамз хеле суст аст (камаш 6 аломат)', 'Слишком слабый пароль (минимум 6 символов)');
       case 'requires-recent-login':
-        return 'Барои амният аз ҳисоб баромада, дубора ворид шавед';
+        return tr('Барои амният аз ҳисоб баромада, дубора ворид шавед',
+            'В целях безопасности выйдите и войдите снова');
       default:
-        return '${e.message ?? 'Хатои номаълум'} (${e.code})';
+        return '${e.message ?? tr('Хатои номаълум', 'Неизвестная ошибка')} (${e.code})';
     }
   }
 
   Future<String?> sendPasswordResetEmail(String email) async {
     final address = email.trim();
-    if (address.isEmpty) return 'Email-ро нависед';
+    if (address.isEmpty) return tr('Email-ро нависед', 'Введите email');
     try {
       await _auth.sendPasswordResetEmail(email: address);
       return null;
@@ -80,7 +106,7 @@ class AuthService extends ChangeNotifier {
       return _authError(e);
     } catch (e) {
       debugPrint('sendPasswordResetEmail failed: $e');
-      return 'Хатои фиристодани паём: $e';
+      return '${tr('Хатои фиристодани паём', 'Ошибка отправки письма')}: $e';
     }
   }
 
@@ -88,7 +114,7 @@ class AuthService extends ChangeNotifier {
   Future<String?> changePassword(String currentPassword, String newPassword) async {
     final user = _auth.currentUser;
     final email = user?.email;
-    if (user == null || email == null) return 'Корбар ворид нашудааст';
+    if (user == null || email == null) return tr('Корбар ворид нашудааст', 'Пользователь не вошёл в систему');
     try {
       final cred = EmailAuthProvider.credential(email: email, password: currentPassword);
       await user.reauthenticateWithCredential(cred);
@@ -122,11 +148,13 @@ class AuthService extends ChangeNotifier {
         email: email.trim(),
         role: UserRole.manager,
         companyId: companyId,
+        approved: false, // то тасдиқи админ хона/муштарӣ илова карда наметавонад
+        createdAt: DateTime.now(),
       );
       await _db.collection('users').doc(newUser.uid).set(newUser.toMap());
       return null;
     } on FirebaseAuthException catch (e) {
-      return e.message ?? 'Хатои сабти ном';
+      return _authError(e);
     } catch (e) {
       return e.toString();
     }
@@ -161,13 +189,15 @@ class AuthService extends ChangeNotifier {
         email: email.trim(),
         role: role,
         companyId: companyId,
+        approved: true, // ҳисоби админсохта — дарҳол фаъол
+        createdAt: DateTime.now(),
       );
       await _db.collection('users').doc(newUser.uid).set(newUser.toMap());
 
       await secondaryAuth.signOut();
       return null;
     } on FirebaseAuthException catch (e) {
-      return e.message ?? 'Хатои сохтани ҳисоб';
+      return _authError(e);
     } catch (e) {
       return e.toString();
     } finally {
@@ -177,4 +207,10 @@ class AuthService extends ChangeNotifier {
 
   Future<void> updateUserRole(String uid, UserRole role) =>
       _db.collection('users').doc(uid).update({'role': roleToString(role)});
+
+  /// Админ дархости менеҷерро қабул мекунад.
+  Future<void> approveUser(String uid) => _db.collection('users').doc(uid).update({'approved': true});
+
+  /// Админ дархостро рад мекунад (ҳуҷҷат нест мешавад).
+  Future<void> rejectUser(String uid) => _db.collection('users').doc(uid).delete();
 }

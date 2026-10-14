@@ -14,6 +14,8 @@ import 'clients_screen.dart';
 import 'settings_screen.dart';
 import 'notifications_screen.dart';
 import 'manager_properties_screen.dart';
+import 'admin_dashboard_screen.dart';
+import 'join_requests_screen.dart';
 
 const _kPrimary = Color(0xFF1E6FD9);
 
@@ -23,7 +25,7 @@ class MainMenuScreen extends StatelessWidget {
   String _roleLabel(UserRole role, AppLocale locale) {
     switch (role) {
       case UserRole.superAdmin:
-        return 'Суперадмин';
+        return 'Админ'; // суперадмин ҳам "Админ" нишон дода мешавад
       case UserRole.admin:
         return 'Админ';
       case UserRole.manager:
@@ -36,6 +38,19 @@ class MainMenuScreen extends StatelessWidget {
     final localeService = context.watch<LocaleService>();
     final t = localeService.strings;
     final user = context.watch<AuthService>().currentUser;
+    final pendingJoinCount = context.watch<NotificationCenter>().pendingCount;
+    final isRu = localeService.locale == AppLocale.ru;
+    final locked = user?.isPending ?? false; // менеҷер то тасдиқи админ
+
+    void showLocked() {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(isRu
+              ? 'Доступно после принятия админом'
+              : 'Баъд аз қабули админ дастрас мешавад'),
+        ));
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -97,6 +112,61 @@ class MainMenuScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            if (locked)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.14),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: Colors.orange.withOpacity(0.6)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.hourglass_top_rounded, color: Colors.orange),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        isRu
+                            ? 'Ваша заявка ожидает принятия админом. Добавлять объекты и клиентов можно будет после принятия.'
+                            : 'Дархости шумо интизори қабули админ аст. Баъд аз қабул хона ва муштарӣ илова карда метавонед.',
+                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (user != null && user.canManageManagers && pendingJoinCount > 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JoinRequestsScreen())),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.14),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.orange.withOpacity(0.6)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person_add_alt_1_rounded, color: Colors.orange),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            isRu ? 'Заявок на вход: $pendingJoinCount' : 'Дархостҳои воридшавӣ: $pendingJoinCount',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -109,8 +179,10 @@ class MainMenuScreen extends StatelessWidget {
                     color: const Color(0xFF1E6FD9),
                     label: t.t('add_property'),
                     order: 0,
-                    onTap: () => Navigator.push(
-                        context, MaterialPageRoute(builder: (_) => const AddPropertyScreen())),
+                    locked: locked,
+                    onTap: () => locked
+                        ? showLocked()
+                        : Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPropertyScreen())),
                   ),
                   _MenuTile(
                     icon: Icons.home_rounded,
@@ -133,8 +205,10 @@ class MainMenuScreen extends StatelessWidget {
                     color: const Color(0xFF9B3FBF),
                     label: t.t('clients'),
                     order: 3,
-                    onTap: () => Navigator.push(
-                        context, MaterialPageRoute(builder: (_) => const ClientsScreen())),
+                    locked: locked,
+                    onTap: () => locked
+                        ? showLocked()
+                        : Navigator.push(context, MaterialPageRoute(builder: (_) => const ClientsScreen())),
                   ),
                   _MenuTile(
                     icon: Icons.badge_rounded,
@@ -144,6 +218,15 @@ class MainMenuScreen extends StatelessWidget {
                     onTap: () => Navigator.push(
                         context, MaterialPageRoute(builder: (_) => const ManagerPropertiesScreen())),
                   ),
+                  if (user != null && user.canManageManagers)
+                    _MenuTile(
+                      icon: Icons.insights_rounded,
+                      color: const Color(0xFF12A36B),
+                      label: isRu ? 'Дашборд' : 'Дашборд',
+                      order: 5,
+                      onTap: () => Navigator.push(
+                          context, MaterialPageRoute(builder: (_) => const AdminDashboardScreen())),
+                    ),
                 ],
               ),
             ),
@@ -152,7 +235,7 @@ class MainMenuScreen extends StatelessWidget {
               icon: Icons.settings_rounded,
               color: Colors.grey.shade700,
               label: t.t('settings'),
-              order: 5,
+              order: 6,
               fullWidth: true,
               onTap: () => Navigator.push(
                   context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
@@ -208,6 +291,7 @@ class _MenuTile extends StatefulWidget {
   final VoidCallback onTap;
   final bool fullWidth;
   final int order;
+  final bool locked;
 
   const _MenuTile({
     required this.icon,
@@ -216,6 +300,7 @@ class _MenuTile extends StatefulWidget {
     required this.onTap,
     this.fullWidth = false,
     this.order = 0,
+    this.locked = false,
   });
 
   @override
@@ -244,11 +329,14 @@ class _MenuTileState extends State<_MenuTile> with SingleTickerProviderStateMixi
       if (_float.isAnimating) _float.stop();
     }
 
-    final tile = AnimatedScale(
+    final tile = Opacity(
+      opacity: widget.locked ? 0.45 : 1,
+      child: AnimatedScale(
       scale: _pressed && animate ? 0.95 : 1.0,
       duration: const Duration(milliseconds: 120),
       curve: Curves.easeOut,
       child: _buildTile(animate),
+      ),
     );
     if (!animate) return tile;
     // Пайдошавӣ: ҳар плитка бо таъхир аз поён баромада меояд.

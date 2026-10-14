@@ -20,7 +20,7 @@ class TeamScreen extends StatelessWidget {
     if (me == null) return const SizedBox();
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.locale == AppLocale.ru ? 'Команда' : 'Кормандон')),
+      appBar: AppBar(title: Text(t.t('team'))),
       body: StreamBuilder<List<AppUser>>(
         stream: firestoreService.companyUsers(me.companyId),
         builder: (context, snapshot) {
@@ -70,7 +70,7 @@ class TeamScreen extends StatelessWidget {
                               Text(user.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
                               if (isMe) ...[
                                 const SizedBox(width: 6),
-                                Text('(${t.locale == AppLocale.ru ? "вы" : "шумо"})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                Text('(${t.t('you')})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                               ],
                             ],
                           ),
@@ -88,14 +88,34 @@ class TeamScreen extends StatelessWidget {
                           decoration: BoxDecoration(color: _roleColor(user.role).withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
                           child: Text(_roleLabel(user.role, t), style: TextStyle(color: _roleColor(user.role), fontSize: 11, fontWeight: FontWeight.w700)),
                         ),
+                        if (!user.approved)
+                          Container(
+                            margin: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(color: Colors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
+                            child: Text(t.locale == AppLocale.ru ? 'Ожидает' : 'Интизор',
+                                style: const TextStyle(color: Colors.orange, fontSize: 10.5, fontWeight: FontWeight.w700)),
+                          ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (me.canManageAdmins && user.role == UserRole.manager && !isMe)
+                            if (!user.approved && me.canManageManagers && !isMe)
+                              IconButton(
+                                icon: const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF12A36B), size: 22),
+                                tooltip: t.locale == AppLocale.ru ? 'Принять' : 'Қабул кардан',
+                                onPressed: () => context.read<AuthService>().approveUser(user.uid),
+                              ),
+                            if (me.canManageAdmins && user.role == UserRole.manager && user.approved && !isMe)
                               IconButton(
                                 icon: const Icon(Icons.arrow_upward_rounded, color: Colors.orange, size: 20),
                                 tooltip: t.t('promote_to_admin'),
-                                onPressed: () => context.read<AuthService>().updateUserRole(user.uid, UserRole.admin),
+                                onPressed: () => _changeRole(context, user, UserRole.admin, t),
+                              ),
+                            if (me.canManageAdmins && user.role == UserRole.admin && !isMe)
+                              IconButton(
+                                icon: const Icon(Icons.arrow_downward_rounded, color: Colors.deepOrange, size: 20),
+                                tooltip: t.t('demote_to_manager'),
+                                onPressed: () => _changeRole(context, user, UserRole.manager, t),
                               ),
                             if (canDelete)
                               IconButton(
@@ -119,11 +139,11 @@ class TeamScreen extends StatelessWidget {
   String _roleLabel(UserRole role, AppStrings t) {
     switch (role) {
       case UserRole.superAdmin:
-        return 'Суперадмин';
+        return t.t('superadmin_label');
       case UserRole.admin:
-        return 'Админ';
+        return t.t('admin_label');
       case UserRole.manager:
-        return t.locale == AppLocale.ru ? 'Менеджер' : 'Менеҷер';
+        return t.t('manager_label');
     }
   }
 
@@ -135,6 +155,33 @@ class TeamScreen extends StatelessWidget {
         return Colors.orange;
       case UserRole.manager:
         return _kPrimary;
+    }
+  }
+
+  Future<void> _changeRole(BuildContext context, AppUser user, UserRole newRole, AppStrings t) async {
+    final auth = context.read<AuthService>();
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(newRole == UserRole.admin ? t.t('promote_confirm') : t.t('demote_confirm')),
+        content: Text(user.fullName),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.t('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.t('confirm_yes')),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await auth.updateUserRole(user.uid, newRole);
+      messenger.showSnackBar(SnackBar(content: Text(t.t('role_changed'))));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('$e')));
     }
   }
 

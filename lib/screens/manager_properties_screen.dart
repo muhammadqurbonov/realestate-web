@@ -101,7 +101,7 @@ class ManagerPropertiesScreen extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => _ManagerPropertiesListScreen(uid: m.uid, name: m.name, isOwn: isMe),
+                    builder: (_) => ManagerPropertiesListScreen(uid: m.uid, name: m.name, isOwn: isMe),
                   ),
                 ),
                 child: Container(
@@ -148,11 +148,11 @@ class ManagerPropertiesScreen extends StatelessWidget {
   }
 }
 
-class _ManagerPropertiesListScreen extends StatelessWidget {
+class ManagerPropertiesListScreen extends StatelessWidget {
   final String uid;
   final String name;
   final bool isOwn;
-  const _ManagerPropertiesListScreen({required this.uid, required this.name, required this.isOwn});
+  const ManagerPropertiesListScreen({super.key, required this.uid, required this.name, required this.isOwn});
 
   @override
   Widget build(BuildContext context) {

@@ -119,6 +119,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
         addedByPhone: _addedByPhone,
         createdAt: widget.property.createdAt,
         isSold: widget.property.isSold,
+        soldAt: widget.property.soldAt,
         category: _category,
         houseLandType: _houseLandType,
         rooms: int.tryParse(_roomsController.text) ?? 0,
@@ -155,14 +156,15 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   }
 
   Future<void> _confirmDelete() async {
+    final t = context.read<LocaleService>().strings;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Хонаро ҳазф кунем?'),
-        content: const Text('Ин амалро баргардонидан мумкин нест.'),
+        title: Text(t.t('delete_property_title')),
+        content: Text(t.t('cannot_undo')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Бекор')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Ҳазф', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.t('cancel'))),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(t.t('delete'), style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
