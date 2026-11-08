@@ -2,6 +2,12 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 /// Насбкунии барнома ҳамчун PWA (экрани асосии телефон).
+///
+/// Android / Chrome / Edge: ҳодисаи `beforeinstallprompt` нигоҳ дошта мешавад ва бо як
+/// зеркунӣ диалоги насб кушода мешавад. iPhone/iPad (Safari) чунин имкон надорад,
+/// онҳо дастури «Илова ба экрани асосӣ»-ро мебинанд.
+///
+/// Бе `dart:html` ва `dart:js_util` навишта шудааст (онҳо дар Dart-и нав нестанд).
 class AppInstall {
   static bool _listening = false;
 
@@ -29,6 +35,7 @@ class AppInstall {
       if (nav == null) return false;
       final ua = nav.getProperty<JSString>('userAgent'.toJS).toDart;
       if (RegExp(r'iPhone|iPad|iPod', caseSensitive: false).hasMatch(ua)) return true;
+      // iPadOS 13+ худро Mac муаррифӣ мекунад, вале экрани ламсӣ дорад.
       final platform = nav.getProperty<JSString?>('platform'.toJS)?.toDart ?? '';
       final touch = nav.getProperty<JSNumber?>('maxTouchPoints'.toJS)?.toDartInt ?? 0;
       return platform == 'MacIntel' && touch > 1;
@@ -37,6 +44,7 @@ class AppInstall {
     }
   }
 
+  /// Браузер насбро пешниҳод кардааст (ҳодиса дар index.html ё ин ҷо гирифта шудааст).
   static bool get canPrompt {
     try {
       return _window.getProperty<JSAny?>('deferredPrompt'.toJS) != null;
@@ -64,6 +72,7 @@ class AppInstall {
     _window.callMethod<JSAny?>('addEventListener'.toJS, 'appinstalled'.toJS, onInstalled);
   }
 
+  /// Диалоги насби браузерро мекушояд. true — агар корбар розӣ шуд.
   static Future<bool> prompt() async {
     final event = _window.getProperty<JSObject?>('deferredPrompt'.toJS);
     if (event == null) return false;

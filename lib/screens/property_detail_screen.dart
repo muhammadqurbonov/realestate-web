@@ -5,7 +5,7 @@ import '../services/locale_service.dart';
 import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../l10n/app_strings.dart';
-import '../services/whatsapp_share.dart';
+import '../services/property_share_flow.dart';
 import 'edit_property_screen.dart';
 import 'photo_gallery_screen.dart';
 
@@ -209,14 +209,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
-                        final ok = await shareToWhatsApp(property, t);
-                        if (!ok && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(t.t('whatsapp_failed'))),
-                          );
-                        }
-                      },
+                      onPressed: () => sharePropertyToWhatsApp(context, property, t),
                       icon: const Icon(Icons.chat, size: 20),
                       label: Text(t.locale == AppLocale.ru ? 'Отправить в WhatsApp' : 'Ба WhatsApp равон кардан'),
                       style: ElevatedButton.styleFrom(

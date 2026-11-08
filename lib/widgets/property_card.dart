@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/property.dart';
 import '../services/locale_service.dart';
-import '../services/whatsapp_share.dart';
+import '../services/property_share_flow.dart';
 import '../l10n/app_strings.dart';
 import '../screens/property_detail_screen.dart';
 
@@ -40,10 +40,7 @@ class PropertyCard extends StatelessWidget {
   }
 
   Future<void> _share(BuildContext context, AppStrings t) async {
-    final ok = await shareToWhatsApp(property, t);
-    if (!ok && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.t('whatsapp_failed'))));
-    }
+    await sharePropertyToWhatsApp(context, property, t);
   }
 
   @override
