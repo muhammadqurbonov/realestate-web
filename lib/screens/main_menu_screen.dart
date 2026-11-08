@@ -25,7 +25,7 @@ class MainMenuScreen extends StatelessWidget {
   String _roleLabel(UserRole role, AppLocale locale) {
     switch (role) {
       case UserRole.superAdmin:
-        return 'Админ'; // суперадмин ҳам "Админ" нишон дода мешавад
+        return 'Суперадмин';
       case UserRole.admin:
         return 'Админ';
       case UserRole.manager:

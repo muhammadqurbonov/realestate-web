@@ -6,6 +6,7 @@ import 'register_screen.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/password_dialogs.dart';
 import '../widgets/app_logo.dart';
+import '../widgets/install_app_button.dart';
 
 const _kPrimary = Color(0xFF1E6FD9);
 const _kPrimaryDark = Color(0xFF0B3D91);
@@ -152,6 +153,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                         child: Text(t.t('no_account_register')),
                       ),
+                      const SizedBox(height: 4),
+                      const InstallAppButton(),
                     ],
                   ),
                   ),

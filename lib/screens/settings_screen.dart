@@ -10,6 +10,7 @@ import '../theme/app_colors.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/password_dialogs.dart';
 import '../widgets/app_logo.dart';
+import '../widgets/install_app_button.dart';
 import 'team_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -18,7 +19,7 @@ class SettingsScreen extends StatelessWidget {
   String _roleLabel(AppStrings t, UserRole role) {
     switch (role) {
       case UserRole.superAdmin:
-        return t.t('admin_label'); // суперадмин ҳам "Админ" нишон дода мешавад
+        return t.t('superadmin_label');
       case UserRole.admin:
         return t.t('admin_label');
       case UserRole.manager:
@@ -267,6 +268,10 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
+
+          // ---------- Насби барнома ----------
+          const InstallAppButton(card: true),
+          const SizedBox(height: 16),
 
           // ---------- Дар бораи барнома ----------
           GlassCard(

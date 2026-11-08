@@ -20,6 +20,9 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
   final _searchController = TextEditingController();
   String _query = '';
 
+  _Status _status = _Status.all;
+  _Sort _sort = _Sort.newest;
+
   ListingCategory? _filterCategory;
   double? _minPrice;
   double? _maxPrice;
@@ -38,7 +41,9 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
       _filterConstruction != null;
 
   List<Property> _applyFilters(List<Property> all) {
-    return all.where((p) {
+    final list = all.where((p) {
+      if (_status == _Status.active && p.isSold) return false;
+      if (_status == _Status.sold && !p.isSold) return false;
       if (_query.isNotEmpty) {
         final q = _query.toLowerCase();
         final matchesAddress = p.address.toLowerCase().contains(q);
@@ -56,6 +61,18 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
       }
       return true;
     }).toList();
+    switch (_sort) {
+      case _Sort.newest:
+        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case _Sort.priceAsc:
+        list.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case _Sort.priceDesc:
+        list.sort((a, b) => b.price.compareTo(a.price));
+        break;
+    }
+    return list;
   }
 
   Future<void> _openFilters() async {
@@ -127,6 +144,45 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 8, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final s in _Status.values)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(t.t(s == _Status.all ? 'status_all' : (s == _Status.active ? 'status_active' : 'status_sold'))),
+                              selected: _status == s,
+                              onSelected: (_) => setState(() => _status = s),
+                              selectedColor: _kPrimary.withOpacity(0.18),
+                              backgroundColor: Colors.white.withOpacity(0.72),
+                              side: BorderSide(color: _status == s ? _kPrimary : const Color(0xCCFFFFFF)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuButton<_Sort>(
+                  tooltip: t.t('sort'),
+                  icon: const Icon(Icons.swap_vert_rounded),
+                  initialValue: _sort,
+                  onSelected: (v) => setState(() => _sort = v),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: _Sort.newest, child: Text(t.t('sort_newest'))),
+                    PopupMenuItem(value: _Sort.priceAsc, child: Text(t.t('sort_price_asc'))),
+                    PopupMenuItem(value: _Sort.priceDesc, child: Text(t.t('sort_price_desc'))),
+                  ],
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: StreamBuilder<List<Property>>(
               stream: firestoreService.allProperties(),
@@ -164,6 +220,10 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
     );
   }
 }
+
+enum _Status { all, active, sold }
+
+enum _Sort { newest, priceAsc, priceDesc }
 
 class _FilterResult {
   final ListingCategory? category;

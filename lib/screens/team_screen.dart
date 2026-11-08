@@ -105,17 +105,16 @@ class TeamScreen extends StatelessWidget {
                                 tooltip: t.locale == AppLocale.ru ? 'Принять' : 'Қабул кардан',
                                 onPressed: () => context.read<AuthService>().approveUser(user.uid),
                               ),
-                            if (me.canManageAdmins && user.role == UserRole.manager && user.approved && !isMe)
-                              IconButton(
-                                icon: const Icon(Icons.arrow_upward_rounded, color: Colors.orange, size: 20),
-                                tooltip: t.t('promote_to_admin'),
-                                onPressed: () => _changeRole(context, user, UserRole.admin, t),
-                              ),
-                            if (me.canManageAdmins && user.role == UserRole.admin && !isMe)
-                              IconButton(
-                                icon: const Icon(Icons.arrow_downward_rounded, color: Colors.deepOrange, size: 20),
-                                tooltip: t.t('demote_to_manager'),
-                                onPressed: () => _changeRole(context, user, UserRole.manager, t),
+                            if (me.canManageAdmins && user.approved && !isMe)
+                              PopupMenuButton<UserRole>(
+                                tooltip: t.t('change_role'),
+                                icon: const Icon(Icons.manage_accounts_outlined, color: Colors.orange, size: 22),
+                                onSelected: (r) => _changeRole(context, user, r, t),
+                                itemBuilder: (_) => [
+                                  for (final r in UserRole.values)
+                                    if (r != user.role)
+                                      PopupMenuItem(value: r, child: Text(_roleLabel(r, t))),
+                                ],
                               ),
                             if (canDelete)
                               IconButton(
@@ -164,8 +163,12 @@ class TeamScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(newRole == UserRole.admin ? t.t('promote_confirm') : t.t('demote_confirm')),
-        content: Text(user.fullName),
+        title: Text('${t.t('change_role_to')} «${_roleLabel(newRole, t)}»?'),
+        content: Text(
+          newRole == UserRole.superAdmin
+              ? '${user.fullName}\n\n${t.t('superadmin_warning')}'
+              : user.fullName,
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.t('cancel'))),
           ElevatedButton(
