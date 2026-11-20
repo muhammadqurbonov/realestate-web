@@ -85,9 +85,39 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     });
   }
 
+  static const int _maxPhotos = 15;
+
+  /// Аксҳоро мегирем ва ҲАМОН ҶО хурд мекунем (андоза ва сифат паст), то:
+  ///  1) намоиши пешнамо хотираи зиёд нагирад;
+  ///  2) боргирӣ ба Cloudinary тез бошад ва барнома дар телефонҳои арзон
+  ///     аз сабаби нарасидани хотира (OutOfMemory) напаррад.
+  /// Ҳар хатогии интихоб ба корбар бо паём нишон дода мешавад, на партофтани барнома.
   Future<void> _pickPhotos() async {
-    final images = await _picker.pickMultiImage();
-    setState(() => _photos.addAll(images));
+    final t = context.read<LocaleService>().strings;
+    try {
+      final images = await _picker.pickMultiImage(
+        imageQuality: 70,
+        maxWidth: 1600,
+        maxHeight: 1600,
+      );
+      if (images.isEmpty) return;
+
+      final room = _maxPhotos - _photos.length;
+      final accepted = room > 0 ? images.take(room).toList() : <XFile>[];
+      if (!mounted) return;
+      setState(() => _photos.addAll(accepted));
+
+      if (images.length > accepted.length && mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(t.t('photo_too_many'))));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(t.t('photo_pick_error'))));
+    }
   }
 
   Future<void> _save() async {
@@ -697,20 +727,56 @@ class _RadioCard extends StatelessWidget {
   }
 }
 
-class _XFileThumb extends StatelessWidget {
+class _XFileThumb extends StatefulWidget {
   final XFile file;
   final double size;
   const _XFileThumb({required this.file, required this.size});
 
   @override
+  State<_XFileThumb> createState() => _XFileThumbState();
+}
+
+class _XFileThumbState extends State<_XFileThumb> {
+  // Хонда мешавад як бор (на дар ҳар rebuild), то акс такроран аз диск
+  // хонда нашавад — ин худаш метавонад сабаби кундшавӣ ва зиёд истифодаи
+  // хотира бошад, вақте дар экран якчанд акс ҳамзамон мебошанд.
+  late final Future<Uint8List> _bytesFuture = widget.file.readAsBytes();
+
+  @override
   Widget build(BuildContext context) {
+    final px = (widget.size * MediaQuery.of(context).devicePixelRatio).round();
     return FutureBuilder<Uint8List>(
-      future: file.readAsBytes(),
+      future: _bytesFuture,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Container(width: size, height: size, color: Colors.grey.shade200);
+        if (snapshot.hasError) {
+          return Container(
+            width: widget.size,
+            height: widget.size,
+            color: Colors.grey.shade200,
+            alignment: Alignment.center,
+            child: Icon(Icons.broken_image_outlined, color: Colors.grey[500], size: widget.size * 0.4),
+          );
         }
-        return Image.memory(snapshot.data!, width: size, height: size, fit: BoxFit.cover);
+        if (!snapshot.hasData) {
+          return Container(width: widget.size, height: widget.size, color: Colors.grey.shade200);
+        }
+        return Image.memory(
+          snapshot.data!,
+          width: widget.size,
+          height: widget.size,
+          fit: BoxFit.cover,
+          // Декодкунӣ ба андозаи хурди воқеӣ, на ба андозаи пурраи акс —
+          // ин истифодаи хотираро даҳҳо маротиба кам мекунад.
+          cacheWidth: px,
+          cacheHeight: px,
+          errorBuilder: (context, error, stack) => Container(
+            width: widget.size,
+            height: widget.size,
+            color: Colors.grey.shade200,
+            alignment: Alignment.center,
+            child: Icon(Icons.broken_image_outlined, color: Colors.grey[500], size: widget.size * 0.4),
+          ),
+        );
       },
     );
   }

@@ -261,6 +261,15 @@ class AppStrings {
     'sort_price_asc': {AppLocale.tj: 'Аввал арзонҳо', AppLocale.ru: 'Сначала дешёвые'},
     'sort_price_desc': {AppLocale.tj: 'Аввал гаронҳо', AppLocale.ru: 'Сначала дорогие'},
     'sort': {AppLocale.tj: 'Мураттабсозӣ', AppLocale.ru: 'Сортировка'},
+    'photo_pick_error': {
+      AppLocale.tj: 'Хатогӣ ҳангоми интихоби акс. Боз кӯшиш кунед.',
+      AppLocale.ru: 'Ошибка при выборе фото. Попробуйте снова.',
+    },
+    'photo_too_many': {
+      AppLocale.tj: 'Ҳадди аксар 15 акс барои як хона. Аксҳои иловагӣ гирифта нашуданд.',
+      AppLocale.ru: 'Максимум 15 фото на один объект. Лишние фото не добавлены.',
+    },
+    'photo_broken': {AppLocale.tj: 'Акс кушода нашуд', AppLocale.ru: 'Не удалось открыть фото'},
     'show_sold': {AppLocale.tj: 'Хонаҳои фурӯхташударо нишон диҳед', AppLocale.ru: 'Показывать проданные'},
   };
 
